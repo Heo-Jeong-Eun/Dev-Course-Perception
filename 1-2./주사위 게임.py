@@ -8,6 +8,7 @@ product 활용, 두 개 이상의 리스트이 모든 조합을 구하기 위해
 3. product를 탐색하며 monster가 있는 칸에 도달하면 cnt++
 4. 1 - cnt 확률을 반환한다. 
 '''
+
 from itertools import product
 
 def solution(monster, S1, S2, S3):
