@@ -24,4 +24,4 @@ def solution(m, weights):
 m = 3000
 weights = [500, 1500, 2500, 1000, 2000]
 
-print(solution(m, weights))
+print(solution(m, weights)) 
