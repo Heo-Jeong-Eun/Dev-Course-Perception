@@ -10,7 +10,7 @@ stack으로 풀이를 생각했다.
 4. 올바른 괄호 조건이 충족되는 경우 -> len(stack) == 0, stack == empty이고
 5. 올바른 괄호 조건이 아닌 경우 -> len(stack) != 0, stack != empty
 '''
-
+ 
 def solution(s):
     stack = []
 
