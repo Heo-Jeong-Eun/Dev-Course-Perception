@@ -5,8 +5,8 @@
 🔑 quiz solution
 1. 에라토스테네스의 체를 사용해 소수를 판별한다.
 2. combinations 사용해 완전 탐색으로 3개의 수를 sum, n이 되는지 검사하고 n의 count를 반환한다.   
+''' 
 
-'''
 import math
 from itertools import combinations
 
