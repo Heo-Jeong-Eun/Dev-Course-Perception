@@ -2,7 +2,7 @@
 💡 approaches
 queue를 활용한 풀이
 
-🔑 quiz solution
+🔑 quiz solution 
 1. cnt, t(time) 변수 선언
 2. index 0번 요소가 100이 될 때까지 반복하며 t를 증가시킨다.
 3. 100을 만족하면 요소를 pop, cnt++
