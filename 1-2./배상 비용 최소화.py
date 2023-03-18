@@ -1,6 +1,6 @@
 '''
 💡 approaches 
-Heap 자료구조 활용, 우선순위 큐 
+Heap 자료구조 ㅂ활용, 우선순위 큐 
 파이썬의 Heapq 모듈은 MinHeap을 기반으로 구현되었기 때문에 이를 응용해 MaxHeap을 사용한다.
 
 🔑 quiz solution
@@ -33,11 +33,6 @@ def solution(no, works):
         heapq.heappush(MaxHeap, (-work, work))
 
     return sum([i[1] ** 2 for i in MaxHeap])
-
-N = 4
-works = [4, 3, 3]
-
-print(solution(N, works))
 
 N = 4
 works = [4, 3, 3]
