@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="msg_send_cpp" type="msg_sender" name="sender"/>
+    <node pkg="msg_send_cpp" type="msg_receiver" name="receiver" output="screen"/>
+</launch>
