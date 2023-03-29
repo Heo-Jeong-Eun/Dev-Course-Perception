@@ -46,19 +46,19 @@
             sleep_time = time.time()
             list_append_time()
 
-    total_end = time.time()
+        total_end = time.time()
 
-    for t in range(0, 5):
-        sleep[t] -= end[t]
-        end[t] -= start[t]
+        for t in range(0, 5):
+            sleep[t] -= end[t]
+            end[t] -= start[t]
 
-    for result in range(0, 5):
-        print "spend time > ", round(end[result], 4), 's'
-        print "sleep time > ", round(sleep[result], 4), 's'
+        for result in range(0, 5):
+            print "spend time > ", round(end[result], 4), 's'
+            print "sleep time > ", round(sleep[result], 4), 's'
 
-    print "------------------------------"
-    print "total time > ", round((total_end - total_start), 4), 's'
-    print "------------------------------\n\n"
+        print "------------------------------"
+        print "total time > ", round((total_end - total_start), 4), 's'
+        print "------------------------------\n\n"
     ```
 
 
