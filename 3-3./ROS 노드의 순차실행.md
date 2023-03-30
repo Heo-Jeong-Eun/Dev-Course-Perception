@@ -228,7 +228,7 @@
 
     - 자기보다 서수가 앞선 노드를 먼저 보내서는 안된다.
     
-- **패키지는 order_test라는 이름을 만드고, launch 디렉토리 생성 후 cm → catkin_create_pkg order_test std_msgs rospy**
+- **패키지는 order_test라는 이름을 만들고, launch 디렉토리 생성 후 cm → catkin_create_pkg order_test std_msgs rospy**
 
 
 - **현상 확인 및 분석**
@@ -236,7 +236,7 @@
 
     - launch 파일로 실행하게 되면 노드를 순서대로 구동시킬 수 없다. → 랜덤
 
-    <img src = 'img/ROS Sequential Execution (Problem Situation).png' alt = 'ROS Sequential Execution (Problem Situation)' width='500' height='300'>
+        <img src = 'img/ROS Sequential Execution (Problem Situation).png' alt = 'ROS Sequential Execution (Problem Situation)' width='500' height='300'>
 
 
 - **해결책 적용 결과**
