@@ -1,0 +1,2 @@
+ex_urdf:msg_send:my_motor:my_pkg1:order_test:rviz_xycar:xycar_motor
+-DCATKIN_DEVEL_PREFIX=/home/jen/xycar_ws/devel -DCMAKE_INSTALL_PREFIX=/home/jen/xycar_ws/install -G Unix Makefiles
