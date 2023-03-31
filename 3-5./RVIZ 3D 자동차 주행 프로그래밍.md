@@ -3,11 +3,11 @@
 - **RVIZ 가상 공간에 있는 3D 자동차를 주행시킨다.**
 
 - 동작 과정
-    1. 8자 주행 프로그램이 모터 제어 메시지를 보낸다. → /xycar_motor 토픽
+    - 8자 주행 프로그램이 모터 제어 메시지를 보낸다. → /xycar_motor 토픽
 
-    2. 변환 프로그램이 받아 변환, /joint_states 토픽을 만들어 발행한다. 
+    - 변환 프로그램이 받아 변환, /joint_states 토픽을 만들어 발행한다. 
 
-    3. 오도메트리 프로그램이 받아 변환, /odom 토픽을 만들어 발행한다.
+    - 오도메트리 프로그램이 받아 변환, /odom 토픽을 만들어 발행한다.
 
 
 - **자이카 모터 제어 토픽**
@@ -172,26 +172,26 @@
                     current_time,
                     "base_link",
                     "odom"
-            )
+                )
             
                 # Odometry 메시지의 헤더 만들기
                 odom = Odometry()
                 odom.header.stamp = current_time
-            odom.header.frame_id = "odom"
+                odom.header.frame_id = "odom"
             
                 # position 값 채우기 
-            odom.pose.pose = Pose(Point(x_, y_, 0.), Quaternion(*odom_quat))
+                odom.pose.pose = Pose(Point(x_, y_, 0.), Quaternion(*odom_quat))
             
                 # 속도값 채우기
-            odom.child_frame_id = "base_link"
-            # odom.twist.twist = Twist(Vector3(vx, vy, 0), Vector3(0, 0, yaw_))
+                odom.child_frame_id = "base_link"
+                # odom.twist.twist = Twist(Vector3(vx, vy, 0), Vector3(0, 0, yaw_))
             
                 # /odom 토픽 발행하기
-            odom_pub.publish(odom)
+                odom_pub.publish(odom)
             
-            last_time = current_time
-            r.sleep()
-            ```
+                last_time = current_time
+                r.sleep()
+                ```
 
 
 - **RVIZ 뷰어 설정 파일**
