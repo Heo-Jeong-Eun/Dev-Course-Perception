@@ -1,8 +1,0 @@
-prefix=/home/jen/xycar_ws/devel
-
-Name: my_pkg1
-Description: Description of my_pkg1
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
