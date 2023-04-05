@@ -209,6 +209,8 @@
     $ rqt_graph
     ```
 
+    <img src = 'img/RVIZ Lidar-RVIZ.png' alt = 'RVIZ Lidar-RVIZ' width='500' height='300'>
+
     <img src = 'img/RVIZ Lidar-Graph Debug.png' alt = 'RVIZ Lidar-Graph Debug' width='500' height='300'>
 
     <img src = 'img/RVIZ Lidar-Graph.png' alt = 'RVIZ Lidar-Graph' width='500' height='300'>
