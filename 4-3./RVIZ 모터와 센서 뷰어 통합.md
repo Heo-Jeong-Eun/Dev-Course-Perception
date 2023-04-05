@@ -378,6 +378,4 @@
     $ rqt_graph
     ```
 
-    <img src = 'img/RVIZ Motor + Sensor Viewer-Graph.png' alt = 'RVIZ Motor + Sensor Viewer-Graph.png' width='500' height='300'>
-
     <img src = 'img/RVIZ Motor + Sensor Viewer-Graph Debug.png' alt = 'RVIZ Motor + Sensor Viewer-Graph Debug.png' width='500' height='300'>
