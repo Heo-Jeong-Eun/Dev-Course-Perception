@@ -1,0 +1,8 @@
+prefix=/home/jen/xycar_ws/install
+
+Name: my_imu
+Description: Description of my_imu
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

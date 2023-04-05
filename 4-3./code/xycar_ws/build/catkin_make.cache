@@ -1,0 +1,2 @@
+ex_urdf:msg_send:my_imu:my_lidar:my_motor:my_pkg1:my_ultra:order_test:rviz_all:rviz_imu:rviz_imu_plugin:rviz_lidar:rviz_xycar:ultrasonic:xycar_motor
+-DCATKIN_DEVEL_PREFIX=/home/jen/xycar_ws/devel -DCMAKE_INSTALL_PREFIX=/home/jen/xycar_ws/install -G Unix Makefiles
