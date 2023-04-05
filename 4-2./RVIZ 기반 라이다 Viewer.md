@@ -208,3 +208,13 @@
     $ roslaunch rviz_lidar lidar_urdf.launch
     $ rqt_graph
     ```
+
+    <img src = 'img/RVIZ Lidar-Graph Debug.png' alt = 'RVIZ Lidar-Graph Debug' width='500' height='300'>
+
+    <img src = 'img/RVIZ Lidar-Graph.png' alt = 'RVIZ Lidar-Graph' width='500' height='300'>
+
+     ```shell
+    $ rostopic echo /scan
+    ```
+
+    <img src = 'img/RVIZ Lidar-Topic.png' alt = 'RVIZ Lidar-Topic' width='500' height='300'>
