@@ -3,7 +3,7 @@
 - **RVIZ에서 IMU 데이터 제작하기**
 
 
-- **imu_generator.py**
+- **imu_generator.py** 
 
     ```python
     #!/usr/bin/env python
@@ -96,4 +96,4 @@
     <img src = 'img/RVIZ IMU Viewer-Topic.png' alt = 'RVIZ IMU Viewer-Topic' width='500' height='400'>
 
 
-    <img src = 'img/RVIZ IMU Viewer-Graph.png' alt = 'RVIZ IMU Viewer-Graph' width='500' height='300'>
+    <img src = 'img/RVIZ IMU Viewer-Graph.png' alt = 'RVIZ IMU Viewer-Graph' width='500' height='300'> 
