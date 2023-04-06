@@ -219,4 +219,4 @@
     $ rostopic echo /scan
     ```
 
-    <img src = 'img/RVIZ Lidar-Topic.png' alt = 'RVIZ Lidar-Topic' width='500' height='300'>
+    <img src = 'img/RVIZ Lidar-Topic.png' alt = 'RVIZ Lidar-Topic' width='500' height='300'> 
