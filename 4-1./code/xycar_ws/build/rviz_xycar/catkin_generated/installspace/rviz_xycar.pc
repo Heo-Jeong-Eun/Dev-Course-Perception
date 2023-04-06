@@ -1,8 +1,0 @@
-prefix=/home/jen/xycar_ws/install
-
-Name: rviz_xycar
-Description: Description of rviz_xycar
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 

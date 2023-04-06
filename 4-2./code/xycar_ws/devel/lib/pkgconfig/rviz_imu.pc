@@ -1,8 +1,0 @@
-prefix=/home/jen/xycar_ws/devel
-
-Name: rviz_imu
-Description: Description of rviz_imu
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
