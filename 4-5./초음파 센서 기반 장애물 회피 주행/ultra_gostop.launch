@@ -1,7 +1,8 @@
 <launch>
-	<!-- motor 가동 -->
+	<!-- motor -->
 	<include file="$(find xycar_motor)/launch/xycar_motor.launch" />
-
+	<!-- ultra -->
 	<node name="xycar_ultra" pkg="xycar_ultrasonic" type="xycar_ultrasonic.py" output="screen" />
+
 	<node name="ultra_driver" pkg="ultra_drive" type="ultra_gostop.py" output="screen" />
 </launch>
