@@ -1,0 +1,7 @@
+<launch>
+	<node name="rviz_visualizer" pkg="rviz" type="rviz" required="true" args="-d $(find lidar_test)/rviz/lidar_test.rviz"/>
+
+	<node name="rosbag_play" pkg="rosbag" type="play" output="screen" required="true" args="$(find lidar_test)/src/lidar.bag" />
+
+	<node name="lidar_driver" pkg="lidar_test" type="lidar_test.py" output="screen" />
+</launch>
