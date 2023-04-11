@@ -1,87 +1,71 @@
+# error ! numpy, size를 사용한 slicing
 #!/usr/bin/env python
 
-import rospy, time
+import rospy
+import time
 import numpy as np
-import tf
 from sensor_msgs.msg import LaserScan
 # from xycar_msgs.msg import xycar_motor
+
+import logging
 
 # motor_msg = xycar_motor()
 distance = None
 
-def callback(data):
+def publish_motor_msg(speed, angle):   
+	global motor_msg
+	motor_msg.speed = speed
+	motor_msg.angle = angle
+	pub.publish(motor_msg)
+
+def lidar_callback(data):
 	global distance
-	distance = data.ranges
-	# distance = np.array(data.ranges)
+	distance = np.array(data.ranges) 
 
-def drive_go():
-	global motor_msg
-	motor_msg.speed = 5
-	motor_msg.angle = 0
-	pub.publish(motor_msg)
+# rate = rospy.Rate(0.15)
 
-def drive_stop():
-	global motor_msg
-	motor_msg.speed = 0
-	motor_msg.angle = 0
-	pub.publish(motor_msg)
+def start():
+	rospy.init_node('lidar_driver')
+	rospy.Subscriber('/scan', LaserScan, lidar_callback, queue_size = 1)
+	# pub = rospy.Publisher('xycar_motor', xycar_motor, queue_size = 1)
 
-def drive_spin_r():
-	global motor_msg
-	motor_msg.speed = 3
-	motor_msg.angle = 45
-	pub.publish(motor_msg)
+	while not rospy.is_shutdown():
+		print(distance)
+		'''
+		front_range = distance[((distance.size * 3) // 8) : ((distance.size * 5) // 8)]
+		right_range = distance[((distance.size * 6) // 8) : ((distance.size * 7) // 8)]
+		left_range = distance[((distance.size * 1) // 8) : ((distance.size * 2) // 8)]
 
-def drive_spin_l(): 
-	global motor_msg
-	motor_msg.speed = 3
-	motor_msg.angle = -45
-	pub.publish(motor_msg)   
+		front_range = front_range[front_range != 0]
+		right_range = right_range[right_range != 0]
+		left_range = left_range[left_range != 0]
 
-rospy.init_node('lidar_driver')
-rospy.Subscriber('/scan', LaserScan, callback, queue_size = 1)
-# pub = rospy.Publisher('xycar_motor', xycar_motor, queue_size = 1)
+		min_front = min(front_range)
+		min_right = min(right_range)
+		min_left = min(left_range)
+ 
+		print(front_range)
+		print(right_range)
+		print(left_range)
+		'''
 
-while not rospy.is_shutdown():
-	print(distance)
-	# front_range = distance[((distance.size * 3) // 8) : ((distance.size * 5) // 8)]
-	# right_range = distance[((distance.size * 6) // 8) : ((distance.size * 7) // 8)]
-	# left_range = distance[((distance.size * 1) // 8) : ((distance.size * 2) // 8)]
+		'''
+		min_distance = 0.3
 
-	# front_range = front_range[front_range != 0]
-	# right_range = right_range[right_range != 0]
-	# left_range = left_range[left_range != 0]
+		rate.sleep()	
 
-	# try:
-	# print("test")
-	# min_front = min(front_range)
-	# min_right = min(right_range)
-	# min_left = min(left_range)
+		if min_front < min_distance:
+		publish_motor_msg(0, 0)
+		break
 
-	# min_distance = 0.3
+		elif min_right < min_distance:
+		publish_motor_msg(3, -45)
 
-	'''
-	if min_front < min_distance:
-	drive_stop()
-	break
-	elif min_right < min_distance:
-	drive_spin_l()
-	time.sleep(0.15) 
-	elif min_left < min_distance:
-	drive_spin_r() 
-	time.sleep(0.15)      
-	else:
-	drive_go()
-	time.sleep(0.15) 
-	'''
+		elif min_left < min_distance:
+		publish_motor_msg(3, 45)     
+		else:
+		publish_motor_msg(5, 0)
+		'''
 
-	# print(front_range)
-	# print(right_range)
-	# print(left_range)
-
-	# print("f" + min_front)
-	# print("r" + min_right)
-	# print("l" + min_left)
-
-	# except:
-	# 	pass
+if __name__ == '__main__':
+	start()
