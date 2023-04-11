@@ -5,30 +5,41 @@ import rospy
 import time
 from sensor_msgs.msg import Int32MultiArray
 from xycar_msgs.msg import xycar_motor
-
 import logging
+
+# setting logger
+logger = logging.getLogger(__name__) # logger 생성
+logger.setLevel(logging.DEBUG) # DEBUG Level부터 handler에게 전달
+formatter = logging.Formatter('%(asctime)s -- [%(levelname)s]\n%(message)s\n') # 로그메시지 format 설정
+
+# setting logger-handler
+stream_handler = logging.StreamHandler() # 스트림으로 로그를 출력하는 handler(stream_handler) 생성
+stream_handler.setLevel(logging.INFO) # console에서 INFO Level부터 표시
+stream_handler.setFormatter(formatter) # 위에서 지정한 formatter 형식으로 handler format 설정
+logger.addHandler(stream_handler) # stream_handler 객체 추가
 
 # 초음파 센서 거리 정보를 담을 저장 공간 준비
 ultra_msg = None
 motor_msg = xycar_motor()
 
 # 모터 메시지를 발행하는 함수
-def publish_motor_msg(speed, angle):   
-    global motor_msg
-    motor_msg.speed = speed
-    motor_msg.angle = angle
-    pub.publish(motor_msg)
+def publish_motor_msg(speed, angle):
+	# log msg - info
+	logger.info('-- START: publish_motor_msg() --')
+
+	global motor_msg
+	motor_msg.speed = speed
+	motor_msg.angle = angle
+	pub.publish(motor_msg)
 
 # 초음파 센서 토픽이 들어오면 실행되는 콜백 함수 정의
 def ultra_callback(data):
 	global ultra_msg
 	ultra_msg = data.data
 
-# 시작점 지정 
 def start():
-	# log info msg
-	logging.info('info')
-	logging.error('wrong !')
+	# log msg - info
+	logger.info('-- START: start() --')
 
 	# 주기 설정, 0.15
 	rate = rospy.Rate(0.15)
@@ -75,5 +86,10 @@ def start():
 		else:
 			publish_motor_msg(5, 0)
 
+# 시작점 지정 
 if __name__ == '__main__':
-	start()
+	try:
+		start()
+	except:
+		# log msg - error
+		logger.error('SOMETHING WAS WRONG...')
