@@ -31,6 +31,8 @@ Height = 480
 Offset = 420
 Gap = 40
 
+# 카메라 노드가 보내는 토픽 
+
 # 선분 그리기
 # 허프 변환 함수로 검출된 모든 선분을 다양한 색깔로 출력한다. 
 def draw_lines(img, lines):
