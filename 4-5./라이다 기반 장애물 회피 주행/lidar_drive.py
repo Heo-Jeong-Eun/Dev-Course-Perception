@@ -7,8 +7,8 @@ from sensor_msgs.msg import LaserScan
 from xycar_msgs.msg import xycar_motor
 import logging
 
-# setting logger
-logger = logging.getLogger(__name__) # logger 생성
+# setting logger, log를 사용하기 위한 초기 설정 
+logger = logging.getLogger(__name__) # logger 생성, 기본값, 지정하면 특정 파일만 적용 가능 
 logger.setLevel(logging.DEBUG) # DEBUG Level부터 handler에게 전달
 formatter = logging.Formatter('%(asctime)s -- [%(levelname)s]\n%(message)s\n') # 로그 메시지 format 설정
 
