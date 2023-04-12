@@ -1,0 +1,10 @@
+<launch>
+    <!-- 노드 실행, 자이카 모터 제어기 구동 -->
+    <!-- 노드 실행, 자이카 카메라 구동 -->
+    <!-- 노드 실행, 허프 변환 기반 차선 인식 주행 프로그램 hough_drive.py 실행 -->
+
+    <!-- motor -->
+	<include file="$(find xycar_motor)/launch/xycar_motor.launch" />
+
+    <node name="hough_driver" pkg="hough_drive" type="hough_drive.py" output="screen" />
+</launch>
