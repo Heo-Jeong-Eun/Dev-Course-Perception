@@ -28,7 +28,7 @@ import copy
 Width = 640
 Height = 480
 
-# 트랙 동영상 읽어들이기
+# 트랙 동영상 읽어들이기 X -> 카메라 노드가 보내는 토픽 
 cap = cv2.VideoCapture('xycar_track1.mp4')
 window_title = 'camera'
 
@@ -214,7 +214,7 @@ def start():
 
     # 모터 제어 토픽 발행
 
-    # 트랙 동영상 읽어오기 
+    # 트랙 동영상 읽어오기 X
     _, frame = cap.read()
     while not frame.size == (Width * Height * 3):
         _, frame = cap.read()
