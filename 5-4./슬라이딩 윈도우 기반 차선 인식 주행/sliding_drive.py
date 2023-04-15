@@ -37,11 +37,20 @@ minpix = 5
 
 lane_bin_th = 145
 
+ptx_x1 = 230
+ptx_y1 = 230
+ptx_x2 = 25
+ptx_y2 = 470
+ptx_x3 = 465
+ptx_y3 = 280
+ptx_x4 = 630
+ptx_y4 = 470
+
 warp_src = np.array([
-    [230 - warpx_margin, 300 - warpy_margin],
-    [45 - warpx_margin, 450 + warpy_margin],
-    [445 + warpx_margin, 300 - warpy_margin],
-    [610 + warpx_margin, 450 + warpy_margin],
+    [ptx_x1, ptx_y1],
+    [ptx_x2, ptx_y2],
+    [ptx_x3, ptx_y3],
+    [ptx_x4, ptx_y4]
 ], dtype = np.float32)
 
 warp_dist = np.array([
@@ -97,7 +106,7 @@ def warp_process_image(img):
     _, L, _ = cv2.split(cv2.cvtColor(blur, cv2.COLOR_BGR2HLS))
 
     # lane_bin_th = 145
-    _, lane = cv2.threshold(L, lane_bin_th, 255, cv2.THRESH_BINARY)
+    _, lane = cv2.threshold(L, lane_bin_th, 255, cv2.THRESH_BINARY_INV)
 
     histogram = np.sum(lane[lane.shape[0] // 2 :, :], axis = 0)
 
@@ -157,7 +166,7 @@ def warp_process_image(img):
     out_img[nz[0][right_lane_inds], nz[1][right_lane_inds]] = [0, 0, 255]
     cv2.imshow('viewer', out_img)
 
-    return lfit, rfit
+    return lfit, rfit, lane
 
 def draw_lane(image, warp_img, Minv, left_fit, right_fit):
     global Width, Height
@@ -191,27 +200,46 @@ def pub_motor(angle, speed):
 
     pub.publish(motor_control)
 
+def onChange(pos):
+    pass
+
+cv2.namedWindow("Trackbar Windows")
+cv2.createTrackbar("threshold", "Trackbar Windows", 0, 255, onChange)
+cv2.setTrackbarPos("threshold", "Trackbar Windows", lane_bin_th)
+
 def start():
-    global Width, Height
+    global Width, Height, lane
 
     while not rospy.is_shutdown():
 
-        while not cv_image.size == (640*480*3):
+        while not cv_image.size == (640 * 480 * 3):
             continue
         
         frame = cv_image
         if cv2.waitKey(1) & 0xFF == 27:
             break
-
+        
+        lane_bin_th = cv2.getTrackbarPos("threshold", "Trackbar Windows")
+        
         image = calibrate_image(frame)
+
+        dot_image = image
 
         warp_img, M, Minv = warp_image(image, warp_src, warp_dist, (warp_img_w, warp_img_h))
 
-        left_fit, right_fit = warp_process_image(warp_img)
+        left_fit, right_fit, lane = warp_process_image(warp_img)
         lane_img = draw_lane(image, warp_img, Minv, left_fit, right_fit)
+
+        cv2.circle(dot_image, (ptx_x1,ptx_y1), 20, (255,0,0), -1)
+        cv2.circle(dot_image, (ptx_x2,ptx_y2), 20, (0,255,0), -1)
+        cv2.circle(dot_image, (ptx_x3,ptx_y3), 20, (0,0,255), -1)
+        cv2.circle(dot_image, (ptx_x4,ptx_y4), 20, (0,0,0), -1)
 
         cv2.imshow(window_title, lane_img)
         cv2.waitKey(1)
+        cv2.imshow("lane", lane)
+        cv2.imshow("warp", warp_img)
+        cv2.imshow("dot", dot_image)
 
         Angle = 0
         Speed = 5
