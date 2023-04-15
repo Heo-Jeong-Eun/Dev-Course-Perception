@@ -42,9 +42,11 @@ window_title = 'camera'
 Width = 640
 Height = 480
 
-warp_img_w = 320
-warp_img_h = 240
+# bird eye view로 바꾼 image size
+warp_image_w = 320
+warp_image_h = 240
 
+# warping 할 때 margin
 warpx_margin = 20
 warpy_margin = 3
 
@@ -66,6 +68,7 @@ ptx_y3 = 280
 ptx_x4 = 630
 ptx_y4 = 470
 
+# warp 이전 4개 점의 좌표 
 warp_src = np.array([
     [ptx_x1, ptx_y1],
     [ptx_x2, ptx_y2],
@@ -73,31 +76,36 @@ warp_src = np.array([
     [ptx_x4, ptx_y4]
 ], dtype = np.float32)
 
+# warp 이후 4개 점의 좌표 
 warp_dist = np.array([
     [0, 0],
-    [0, warp_img_h],
-    [warp_img_w, 0],
-    [warp_img_w, warp_img_h],
+    [0, warp_image_h],
+    [warp_image_w, 0],
+    [warp_image_w, warp_image_h],
 ], dtype = np.float32)
+
+def image_callback(data):
+        global cv_image
+        cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
 
 calibrated = True
 
 # 자이카 카메라의 Calibration 보정값
+# warp 변환 시 3x3 변환 행렬값이 필요하다. 
 if calibrated:
+    # 내장 함수로 구할 수 있으나 추후에는 직접 구현이 필요하다. 
     mtx = np.array([
         [422.037858, 0.0, 245.895397],
         [0.0, 435.589734, 163.625535],
         [0.0, 0.0, 1.0]
     ])
 
+    # 내장 함수로 구할 수 있으나 추후에는 직접 구현이 필요하다. 
     dist = np.array([-0.319089, 0.082498, -0.001147, -0.001638, 0.000000])
 
-    cal_mtx, cal_roi = cv2.getOptimalNewCameraMatrix(mtx, dist,
-                                                      (Width, Height), 1, (Width, Height))
-
-def img_callback(data):
-        global cv_image
-        cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
+    # getOptimalNewCameraMatrix는 calibaration에 필요한 mtx와 roi를 구한다. 
+    # cal_mtx, cal_roi는 calibrate_image 함수에서 사용한다. 
+    cal_mtx, cal_roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (Width, Height), 1, (Width, Height))
 
 # 위에서 구한 보정 행렬값을 적용하여 이미지를 반듯하게 수정하는 함수 -> undistort() 호출해서 이미지 수정
 def calibrate_image(frame):
@@ -109,25 +117,27 @@ def calibrate_image(frame):
     x, y, w, h = cal_roi
     tf_image = tf_image[y : y + h, x : x + w]
 
+    # 반듯하게 펴진 image를 return 한다. 
     return cv2.resize(tf_image, (Width, Height))
 
 # 변환전과 후의 4개 점 좌표를 전달해서 이미지를 원근 변환 처리하여 새로운 이미지로 만든다.
-def warp_image(img, src, dst, size):
+def warp_image(image, src, dst, size):
     M = cv2.getPerspectiveTransform(src, dst)
     Minv = cv2.getPerspectiveTransform(dst, src)
-    warp_img = cv2.warpPerspective(img, M, size, flags = cv2.INTER_LINEAR)
+    warp_image = cv2.warpPerspective(image, M, size, flags = cv2.INTER_LINEAR)
 
-    return warp_img, M, Minv
+    return warp_image, M, Minv
 
-def warp_process_image(img):
+def warp_process_image(image):
     global nwindows
     global margin
     global minpix
     global lane_bin_th
 
     # 이미지에서 가우시안 블러링으로 노이즈 제거 
-    blur = cv2.GaussianBlur(img, (5, 5), 0)
+    blur = cv2.GaussianBlur(image, (5, 5), 0)
 
+    # 블러링 처리된 image의 흰선 구분을 위한 코드
     # HLS 포맷에서 L 채널을 이용하면 흰색 선을 쉽게 구분할 수 있다.
     # LAB 포맷에서는 B 채널을 이용하면 노란색 선을 쉽게 구분할 수 있다. 
     _, L, _ = cv2.split(cv2.cvtColor(blur, cv2.COLOR_BGR2HLS))
@@ -152,6 +162,7 @@ def warp_process_image(img):
     # 오른쪽 절반 구역에서 흰색 픽셀의 개수가 가장 많은 위치를 슬라이딩 윈도우의 오른쪽 시작 위치로 잡는다. 
     rightx_current = np.argmax(histogram[:midpoint]) + midpoint
 
+    # 차선이 있는 위치에 box를 쌓는다. -> 9개까지, 240(h) / 9(window cnt) = 26(window h)
     window_height = np.int(lane.shape[0] / nwindows)
     nz = lane.nonzero()
 
@@ -159,22 +170,28 @@ def warp_process_image(img):
     right_lane_inds = []
 
     lx, ly, rx, ry = [], [], [], []
-    out_img = np.dstack((lane, lane, lane)) * 255
+    out_image = np.dstack((lane, lane, lane)) * 255
 
+    # window 9개 그리기 
     for window in range(nwindows):
         win_yl = lane.shape[0] - (window + 1) * window_height
         win_yh = lane.shape[0] - window * window_height
 
+        # 왼쪽 차선 가운데 값을 사용해 window를 그린다. 
+        # 중심 기준으로 왼쪽은 -12, 오른쪽은 12이므로 x축은 24만큼, h는 26만큼이다. 
         win_xll = leftx_current - margin
         win_xlh = leftx_current + margin
+        # 오른쪽 차선 가운데 값을 사용해 window를 그린다. 
         win_xrl = rightx_current - margin
         win_xrh = rightx_current + margin
 
-        cv2.rectangle(out_img, (win_xll, win_yl), (win_xlh, win_yh), (0, 255, 0), 2)
-        cv2.rectangle(out_img, (win_xrl, win_yl), (win_xrh, win_yh), (0, 255, 0), 2)
+        # 사각형 그리기 
+        cv2.rectangle(out_image, (win_xll, win_yl), (win_xlh, win_yh), (0, 255, 0), 2)
+        cv2.rectangle(out_image, (win_xrl, win_yl), (win_xrh, win_yh), (0, 255, 0), 2)
 
         # 슬라이딩 윈도우 박스 하나 안에 있는 흰색 픽셀의 x좌표를 모두 수집
         # 왼쪽과 오른쪽 슬라이딩 박스를 따로 작업한다. 
+        # 이때 1번 window는 히스토그램으로 확보가 되어있는 상태이다. 
         good_left_inds = ((nz[0] >= win_yl) & (nz[0] < win_yh) & 
                           (nz[1] >= win_xll) & (nz[1] < win_xlh)).nonzero()[0]
         good_right_inds = ((nz[0] >= win_yl) & (nz[0] < win_yh) &
@@ -185,6 +202,8 @@ def warp_process_image(img):
 
         # 위에서 구한 x좌표 리스트에서 흰색 점이 5개 이상인 경우에 한해서 x좌표의 평균값을 구한다.
         # 이 값을 위에 쌓을 슬라이딩 윈도우의 중심점으로 사용한다. -> for 반복, 9번
+        # if 조건은 확실히 차선인 경우를 의미한다. 
+        # 이 코드 이전에는 흰점 x 좌표를 수집하기만 하고 이후 평균값을 구한 뒤 다음에 쌓아야 하는 window의 위치가 정해진다. 
         if len(good_left_inds) > minpix:
             leftx_current = np.int(np.mean(nz[1][good_left_inds]))
 
@@ -197,25 +216,30 @@ def warp_process_image(img):
         rx.append(rightx_current)
         ry.append((win_yl + win_yh) / 2)
 
+    # 9번의 loop가 끝나면 그동안 모은 점들을 저장한다. 
     left_lane_inds = np.concatenate(left_lane_inds)
     right_lane_inds = np.concatenate(right_lane_inds)
 
     # 슬라이딩 윈도우의 중심점(x좌표) 9개를 가지고 2차 함수를 만들어낸다. 
+    # 2차 함수 -> x = ay^2 + by + c
     lfit = np.polyfit(np.array(ly), np.array(lx), 2)
     rfit = np.polyfit(np.array(ry), np.array(rx), 2)
 
     # 기존 흰색 차선 픽셀을 왼쪽과 오른쪽 각각 파란색과 빨간색으로 색 변경
-    out_img[nz[0][left_lane_inds], nz[1][left_lane_inds]] = [255, 0, 0]
-    out_img[nz[0][right_lane_inds], nz[1][right_lane_inds]] = [0, 0, 255]
-    cv2.imshow('viewer', out_img)
+    out_image[nz[0][left_lane_inds], nz[1][left_lane_inds]] = [255, 0, 0]
+    out_image[nz[0][right_lane_inds], nz[1][right_lane_inds]] = [0, 0, 255]
+    cv2.imshow('viewer', out_image)
 
     return lfit, rfit, lane
 
-def draw_lane(image, warp_img, Minv, left_fit, right_fit):
+# 다시 원근 변환, 사다리꼴을 원본 이미지에 오버레이
+def draw_lane(image, warp_image, Minv, left_fit, right_fit):
     global Width, Height
-    yMax = warp_img.shape[0]
+
+    # warp image = 240이므로 yMax는 240이다. 
+    yMax = warp_image.shape[0] 
     ploty = np.linspace(0, yMax - 1, yMax)
-    color_warp = np.zeros_like(warp_img).astype(np.uint8)
+    color_warp = np.zeros_like(warp_image).astype(np.uint8)
 
     left_fitx = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
     right_fitx = right_fit[0] * ploty ** 2 + right_fit[1] * ploty + right_fit[2]
@@ -225,14 +249,17 @@ def draw_lane(image, warp_img, Minv, left_fit, right_fit):
     pts_right = np.array([np.transpose(np.vstack([right_fitx, ploty]))])
     pts = np.hstack((pts_left, pts_right))
 
-    # 사다리꼴 이미지를 녹색으로, 거꾸로 원근 변환해서 우너본 이미지와 오버레이
+    # 사다리꼴 이미지를 녹색으로, 거꾸로 원근 변환해서 원본 이미지와 오버레이
     color_warp = cv2.fillPoly(color_warp, np.int_([pts]), (0, 255, 0))
     newwarp = cv2.warpPerspective(color_warp, Minv, (Width, Height))
 
     return cv2.addWeighted(image, 1, newwarp, 0.3, 0)
 
+# 카메라 토픽
 rospy.init_node('cam_tune', anonymous = True)
-rospy.Subscriber("/usb_cam/image_raw", Image, img_callback)
+rospy.Subscriber("/usb_cam/image_raw", Image, image_callback)
+
+# 모트 토픽 
 pub = rospy.Publisher("xycar_motor", xycar_motor, queue_size = 1)
 rate = rospy.Rate(20)
 
@@ -253,7 +280,7 @@ cv2.createTrackbar("threshold", "Trackbar Windows", 0, 255, onChange)
 cv2.setTrackbarPos("threshold", "Trackbar Windows", lane_bin_th)
 
 def start():
-    global Width, Height, lane
+    global Width, Height, lane, lane_bin_th
 
     while not rospy.is_shutdown():
 
@@ -264,24 +291,28 @@ def start():
         
         lane_bin_th = cv2.getTrackbarPos("threshold", "Trackbar Windows")
         
+        # calibration 작업 
         image = calibrate_image(frame)
 
         dot_image = image
 
-        warp_img, M, Minv = warp_image(image, warp_src, warp_dist, (warp_img_w, warp_img_h))
+        warp_image, M, Minv = warp_image(image, warp_src, warp_dist, (warp_image_w, warp_image_h))
 
-        left_fit, right_fit, lane = warp_process_image(warp_img)
-        lane_img = draw_lane(image, warp_img, Minv, left_fit, right_fit)
+        # 가우스부터 이진화까지 진행된다. 
+        left_fit, right_fit, lane = warp_process_image(warp_image)
+        lane_image = draw_lane(image, warp_image, Minv, left_fit, right_fit)
 
+        # warp 작업 후 4개의 좌표 점을 색별로 출력하기 위한 코드 
         cv2.circle(dot_image, (ptx_x1,ptx_y1), 20, (255,0,0), -1)
         cv2.circle(dot_image, (ptx_x2,ptx_y2), 20, (0,255,0), -1)
         cv2.circle(dot_image, (ptx_x3,ptx_y3), 20, (0,0,255), -1)
         cv2.circle(dot_image, (ptx_x4,ptx_y4), 20, (0,0,0), -1)
 
-        cv2.imshow(window_title, lane_img)
+        # 출력 
+        cv2.imshow(window_title, lane_image)
         cv2.waitKey(1)
         cv2.imshow("lane", lane)
-        cv2.imshow("warp", warp_img)
+        cv2.imshow("warp", warp_image)
         cv2.imshow("dot", dot_image)
 
         # 모터 제어 토픽을 읽어오기 
@@ -294,7 +325,7 @@ def start():
         if cv2.waitKey(1) & 0xFF == 27:
             break
 
-    #cap.release()
+    # close code
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
