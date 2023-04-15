@@ -1,7 +1,15 @@
 <launch>
-    <!-- 노드 실행, 자이카 모터 제어기 구동 -->
-    <!-- 노드 실행, 자이카 카메라 구동 -->
-    <!-- 노드 실행, 허프 변환 기반 차선 인식 주행 프로그램 hough_drive.py 실행 -->
+    <!-- camera -->
+    <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen">
+        <param name  = "video_divice" value="/dev/video0" />
+        <param name  = "autoexposure" value="flase" />
+        <param name  = "exposure" value="10" />
+        <param name  = "image_width" value="640" />
+        <param name  = "image_height" value="480" />
+        <param name  = "pixel_format" value="yuyv" />
+        <param name  = "camera_frame_id" value="usb_cam" />
+        <param name  = "io_method" value="mmap" />
+    </node>
 
     <!-- motor -->
 	<include file="$(find xycar_motor)/launch/xycar_motor.launch" />

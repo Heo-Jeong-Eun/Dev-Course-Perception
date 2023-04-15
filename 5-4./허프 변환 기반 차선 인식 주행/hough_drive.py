@@ -18,11 +18,17 @@
 # -*- coding: utf-8 -*-
 
 import rospy
+import rospkg
 import numpy as np
 import cv2
 import random
 import math
 import time
+import copy
+
+from xycar_msgs.msg import xycar_motor
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
 
 # 영상 사이즈에서 ROI 영역만 잘라서 사용한다. 
 # ROI 영역 = 세로 480에서 420-460, 즉 40 픽셀만큼만 자잘라서 사용한다.
@@ -32,6 +38,15 @@ Offset = 420
 Gap = 40
 
 # 카메라 노드가 보내는 토픽 
+bridge = CvBridge()
+cv_image = np.empty(shape = [0])
+
+# 카메라 영상 title 
+window_title = 'camera'
+
+def img_callback(data):
+        global cv_image
+        cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
 
 # 선분 그리기
 # 허프 변환 함수로 검출된 모든 선분을 다양한 색깔로 출력한다. 
@@ -251,15 +266,25 @@ def draw_steer(image, steer_angle):
     # 원본 사진 + 검출 차선 + 평균 차선 + 차선 위치 표시 + 화면 중앙 표시 핸들 그림 + 조향각 화살표 표시 
     cv2.imshow('steer', image)
 
+rospy.init_node('cam_tune', anonymous = True)
+rospy.Subscriber("/usb_cam/image_raw", Image, img_callback)
+pub = rospy.Publisher("xycar_motor", xycar_motor, queue_size = 1)
+rate = rospy.Rate(20)
+
+def pub_motor(angle, speed):
+    global pub
+    global motor_control
+
+    motor_control.angle = angle
+    motor_control.speed = speed
+
+    pub.publish(motor_control)
+
 # 시작점
 def start():
     global image, Width, Height
 
-    # 모터 제어 토픽을 발행
-
     while not rospy.is_shutdown():
-        # 모터 제어 토픽을 읽어오기 
-
         # 허프 변환을 기반으로 영상 처리 진행, 차선을 찾고 위치 표시
         pos, frame = process_image(image)
 
@@ -269,9 +294,18 @@ def start():
         steer_angle = angle * 0.4
         draw_steer(frame, steer_angle)
 
+        # 모터 제어 토픽을 읽어오기 
+        Angle = 0
+        Speed = 5
+
+        pub_motor(Angle, Speed)
+
         # 종료 
         if cv2.waitKey(1) and 0xFF == ord('q'):
             break
+    
+    #cap.release()
+    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     start()
