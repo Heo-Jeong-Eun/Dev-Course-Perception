@@ -37,13 +37,16 @@ Height = 480
 Offset = 420
 Gap = 40
 
-# 카메라 노드가 보내는 토픽 
+motor_control = xycar_motor()
+
+# usb_cam 연결
 bridge = CvBridge()
 cv_image = np.empty(shape = [0])
 
 # 카메라 영상 title 
 window_title = 'camera'
 
+# 영상 불러오기 
 def image_callback(data):
         global cv_image
         cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
@@ -278,8 +281,11 @@ def draw_steer(image, steer_angle):
     # 원본 사진 + 검출 차선 + 평균 차선 + 차선 위치 표시 + 화면 중앙 표시 핸들 그림 + 조향각 화살표 표시 
     cv2.imshow('steer', image)
 
+# 카메라 토픽 받아오기 
 rospy.init_node('cam_tune', anonymous = True)
 rospy.Subscriber("/usb_cam/image_raw", Image, image_callback)
+
+# 모터 토픽 발행 
 pub = rospy.Publisher("xycar_motor", xycar_motor, queue_size = 1)
 rate = rospy.Rate(20)
 
