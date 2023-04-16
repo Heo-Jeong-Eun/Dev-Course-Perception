@@ -32,7 +32,7 @@ from cv_bridge import CvBridge
 
 motor_control = xycar_motor()
 
-# 카메라 노드가 보내는 토픽 
+# usb_cam 연결
 bridge = CvBridge()
 cv_image = np.empty(shape = [0])
 
@@ -84,6 +84,7 @@ warp_dist = np.array([
     [warp_image_w, warp_image_h],
 ], dtype = np.float32)
 
+# 영상을 불러오기 
 def image_callback(data):
         global cv_image
         cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
@@ -255,11 +256,11 @@ def draw_lane(image, warp_image, Minv, left_fit, right_fit):
 
     return cv2.addWeighted(image, 1, newwarp, 0.3, 0)
 
-# 카메라 토픽
+# 카메라 토픽 받아오기 
 rospy.init_node('cam_tune', anonymous = True)
 rospy.Subscriber("/usb_cam/image_raw", Image, image_callback)
 
-# 모트 토픽 
+# 모터 토픽 발행 
 pub = rospy.Publisher("xycar_motor", xycar_motor, queue_size = 1)
 rate = rospy.Rate(20)
 
@@ -272,24 +273,14 @@ def pub_motor(angle, speed):
 
     pub.publish(motor_control)
 
-def onChange(pos):
-    pass
-
-cv2.namedWindow("Trackbar Windows")
-cv2.createTrackbar("threshold", "Trackbar Windows", 0, 255, onChange)
-cv2.setTrackbarPos("threshold", "Trackbar Windows", lane_bin_th)
-
 def start():
-    global Width, Height, lane, lane_bin_th
+    global Width, Height, lane
 
     while not rospy.is_shutdown():
-
         while not cv_image.size == (640 * 480 * 3):
             continue
         
         frame = cv_image
-        
-        lane_bin_th = cv2.getTrackbarPos("threshold", "Trackbar Windows")
         
         # calibration 작업 
         image = calibrate_image(frame)
