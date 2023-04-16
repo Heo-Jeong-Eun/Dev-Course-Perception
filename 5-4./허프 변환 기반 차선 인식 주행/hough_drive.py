@@ -31,7 +31,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
 # 영상 사이즈에서 ROI 영역만 잘라서 사용한다. 
-# ROI 영역 = 세로 480에서 420-460, 즉 40 픽셀만큼만 자잘라서 사용한다.
+# ROI 영역 = 세로 480에서 420-460, 즉 40 픽셀만큼만 잘라서 사용한다.
 Width = 640
 Height = 480
 Offset = 420
@@ -44,49 +44,53 @@ cv_image = np.empty(shape = [0])
 # 카메라 영상 title 
 window_title = 'camera'
 
-def img_callback(data):
+def image_callback(data):
         global cv_image
         cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
 
 # 선분 그리기
 # 허프 변환 함수로 검출된 모든 선분을 다양한 색깔로 출력한다. 
-def draw_lines(img, lines):
+def draw_lines(image, lines):
     global Offset
     
+    # loop를 돌며 시작점과 끝점을 찾고 random하게 색을 입혀 선을 긋는다. 
     for line in lines:
         x1, y1, x2, y2 = line[0]
         color = (random.randint(0, 255), random.randint(0, 255),
                  random.randint(0, 255))
-        img = cv2.line(img, (x1, y1 + Offset), (x2, y2 + Offset), color, 2)
+        
+        # 허프 변환에서 사용하는 관심 영역에 넣기 위해 offset을 더해준다. 
+        image = cv2.line(image, (x1, y1 + Offset), (x2, y2 + Offset), color, 2)
     
-    return img
+    return image
 
 # 사각형 그리기 
-def draw_rectangle(img, lpos, rpos, offset = 0):
+def draw_rectangle(image, lpos, rpos, offset = 0):
     # 중앙 = 왼쪽 + 오른쪽을 2로 나눈 값
     center = (lpos + rpos) / 2
 
     # lpos 위치에 녹색 사각형 그리기
-    cv2.rectangle(img, (lpos - 5, 15 + offset), 
+    cv2.rectangle(image, (lpos - 5, 15 + offset), 
                         (lpos + 5, 25 + offset),
                         (0, 255, 0), 2)
     
     # rpos 위치에 녹색 사각형 그리기 
-    cv2.rectangle(img, (rpos - 5, 15 + offset), 
+    cv2.rectangle(image, (rpos - 5, 15 + offset), 
                         (rpos + 5, 25 + offset),
                         (0, 255, 0), 2)    
     
     # lpos, rpos 사이에 녹색 사각형 그리기 
-    cv2.rectangle(img, (center - 5, 15 + offset), 
+    cv2.rectangle(image, (center - 5, 15 + offset), 
                         (center + 5, 25 + offset),
                         (0, 255, 0), 2)
 
-    # 화면 중ㅇ아에 빨간 사각형 그리기 
-    cv2.rectangle(img, (315, 15 + offset), 
+    # 화면 중앙에 빨간 사각형 그리기 -> 차의 중앙 
+    # 0-640의 중앙은 320이므로 -5, +5를 해주어 중앙을 찾는다. 
+    cv2.rectangle(image, (315, 15 + offset), 
                         (325, 25 + offset),
                         (0, 0, 255), 2)
 
-    return img 
+    return image
 
 # 왼쪽 선분, 오른쪽 선분
 def divide_left_right(lines):
@@ -156,10 +160,11 @@ def get_line_params(lines):
     m = m_sum / size 
     b = y_avg - m * x_avg
 
+    # 선분의 평균 기울기, y절편을 return 한다. 
     return m, b
 
-# lpos, rpos 
-def get_line_pos(img, lines, left = False, right = False):
+# lpos, rpos, 차선의 위치를 return 한다. 
+def get_line_pos(image, lines, left = False, right = False):
     global Width, Height
     global Offset, Gap
 
@@ -176,15 +181,18 @@ def get_line_pos(img, lines, left = False, right = False):
             pos = Width
     else:
         y = Gap / 2
+
+        # y = m0x + b0
         pos = (y - b) / m
 
         b += Offset
         x1 = (Height - b) / float(m)
         x2 = ((Height / 2) - b) / float(m)
 
-        cv2.line(img, (int(x1), Height), (int(x2), (Height / 2)), (255, 0, 0), 3)
+        # 파란선 출력 
+        cv2.line(image, (int(x1), Height), (int(x2), (Height / 2)), (255, 0, 0), 3)
     
-    return img, int(pos)
+    return image, int(pos)
 
 # 카메라 영상 처리 
 # show image, return lpos, rpos
@@ -202,14 +210,18 @@ def process_image(frame):
     # canny edge, 외곽선 추출
     low_threshold = 60
     high_threshold = 70
-    edge_img = cv2.Canny(np.unit8(blur_gray), low_threshold, high_threshold)
+    edge_image = cv2.Canny(np.unit8(blur_gray), low_threshold, high_threshold)
 
     # HoughLineP, ROI 영역에서 선분 찾기 
-    roi = edge_img[Offset : Offset + Gap, 0 : Width]
+    # edge_image -> 640 * 480 size, roi에서 offset을 더해 관심 영역만 저장
+    roi = edge_image[Offset : Offset + Gap, 0 : Width]
+
+    # HoughLineP(image, rho, theta, theshold, minLineLength, maxLineGap)
     all_lines = cv2.HoughLineP(roi, 1, math.pi / 180, 30, 30, 10)
 
     # 선분을 왼쪽과 오른쪽으로 분류
     if all_lines is None:
+        # 차선이 없는 경우 가로 양 끝점인 0과 640을 return 
         return 0, 640
     
     left_lines, right_lines = divide_left_right(all_lines)
@@ -267,7 +279,7 @@ def draw_steer(image, steer_angle):
     cv2.imshow('steer', image)
 
 rospy.init_node('cam_tune', anonymous = True)
-rospy.Subscriber("/usb_cam/image_raw", Image, img_callback)
+rospy.Subscriber("/usb_cam/image_raw", Image, image_callback)
 pub = rospy.Publisher("xycar_motor", xycar_motor, queue_size = 1)
 rate = rospy.Rate(20)
 
