@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32126.317
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BmpShow", "BmpShow.vcxproj", "{6ED63406-4FA8-4B52-998A-38D2F3F8F20E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6ED63406-4FA8-4B52-998A-38D2F3F8F20E}.Debug|x64.ActiveCfg = Debug|x64
+		{6ED63406-4FA8-4B52-998A-38D2F3F8F20E}.Debug|x64.Build.0 = Debug|x64
+		{6ED63406-4FA8-4B52-998A-38D2F3F8F20E}.Debug|x86.ActiveCfg = Debug|Win32
+		{6ED63406-4FA8-4B52-998A-38D2F3F8F20E}.Debug|x86.Build.0 = Debug|Win32
+		{6ED63406-4FA8-4B52-998A-38D2F3F8F20E}.Release|x64.ActiveCfg = Release|x64
+		{6ED63406-4FA8-4B52-998A-38D2F3F8F20E}.Release|x64.Build.0 = Release|x64
+		{6ED63406-4FA8-4B52-998A-38D2F3F8F20E}.Release|x86.ActiveCfg = Release|Win32
+		{6ED63406-4FA8-4B52-998A-38D2F3F8F20E}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A106613E-FD64-43C6-8A05-91E762B91DB8}
+	EndGlobalSection
+EndGlobal
