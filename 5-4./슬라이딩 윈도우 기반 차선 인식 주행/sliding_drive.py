@@ -17,18 +17,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import copy
+import math
+import random
+import time
+
+import cv2
 import rospy
 import rospkg
 import numpy as np
-import cv2
-import random
-import math
-import time
-import copy
 
-from xycar_msgs.msg import xycar_motor
-from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
+from sensor_msgs.msg import Image
+from xycar_msgs.msg import xycar_motor
 
 motor_control = xycar_motor()
 
@@ -39,16 +40,12 @@ cv_image = np.empty(shape = [0])
 # 카메라 영상 title 
 window_title = 'camera'
 
-Width = 640
-Height = 480
+VIDEO_WIDTH = 640
+VIDEO_HETGHT = 480
 
 # bird eye view로 바꾼 image size
 warp_image_w = 320
 warp_image_h = 240
-
-# warping 할 때 margin
-warpx_margin = 20
-warpy_margin = 3
 
 # 슬라이딩 윈도우 갯수
 nwindows = 9
@@ -59,21 +56,17 @@ minpix = 5
 
 lane_bin_th = 145
 
-ptx_x1 = 230
-ptx_y1 = 230
-ptx_x2 = 25
-ptx_y2 = 470
-ptx_x3 = 465
-ptx_y3 = 280
-ptx_x4 = 630
-ptx_y4 = 470
+pts1 = (230, 230)
+pts2 = (25, 470)
+pts3 = (465, 280)
+pts4 = (630, 470)
 
 # warp 이전 4개 점의 좌표 
 warp_src = np.array([
-    [ptx_x1, ptx_y1],
-    [ptx_x2, ptx_y2],
-    [ptx_x3, ptx_y3],
-    [ptx_x4, ptx_y4]
+    [pts1[0], pts1[1]],
+    [pts2[0], pts2[1]],
+    [pts3[0], pts3[1]],
+    [pts4[0], pts4[1]]
 ], dtype = np.float32)
 
 # warp 이후 4개 점의 좌표 
@@ -89,28 +82,26 @@ def image_callback(data):
         global cv_image
         cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
 
-calibrated = True
-
 # 자이카 카메라의 Calibration 보정값
 # warp 변환 시 3x3 변환 행렬값이 필요하다. 
-if calibrated:
-    # 내장 함수로 구할 수 있으나 추후에는 직접 구현이 필요하다. 
-    mtx = np.array([
-        [422.037858, 0.0, 245.895397],
-        [0.0, 435.589734, 163.625535],
-        [0.0, 0.0, 1.0]
-    ])
 
-    # 내장 함수로 구할 수 있으나 추후에는 직접 구현이 필요하다. 
-    dist = np.array([-0.319089, 0.082498, -0.001147, -0.001638, 0.000000])
+# 내장 함수로 구할 수 있으나 추후에는 직접 구현이 필요하다. 
+mtx = np.array([
+    [422.037858, 0.0, 245.895397],
+    [0.0, 435.589734, 163.625535],
+    [0.0, 0.0, 1.0]
+])
 
-    # getOptimalNewCameraMatrix는 calibaration에 필요한 mtx와 roi를 구한다. 
-    # cal_mtx, cal_roi는 calibrate_image 함수에서 사용한다. 
-    cal_mtx, cal_roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (Width, Height), 1, (Width, Height))
+# 내장 함수로 구할 수 있으나 추후에는 직접 구현이 필요하다. 
+dist = np.array([-0.319089, 0.082498, -0.001147, -0.001638, 0.000000])
+
+# getOptimalNewCameraMatrix는 calibaration에 필요한 mtx와 roi를 구한다. 
+# cal_mtx, cal_roi는 calibrate_image 함수에서 사용한다. 
+cal_mtx, cal_roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (VIDEO_WIDTH, VIDEO_HETGHT), 1, (VIDEO_WIDTH, VIDEO_HETGHT))
 
 # 위에서 구한 보정 행렬값을 적용하여 이미지를 반듯하게 수정하는 함수 -> undistort() 호출해서 이미지 수정
 def calibrate_image(frame):
-    global Width, Height
+    global VIDEO_WIDTH, VIDEO_HETGHT
     global mtx, dist
     global cal_mtx, cal_roi
 
@@ -119,15 +110,15 @@ def calibrate_image(frame):
     tf_image = tf_image[y : y + h, x : x + w]
 
     # 반듯하게 펴진 image를 return 한다. 
-    return cv2.resize(tf_image, (Width, Height))
+    return cv2.resize(tf_image, (VIDEO_WIDTH, VIDEO_HETGHT))
 
 # 변환전과 후의 4개 점 좌표를 전달해서 이미지를 원근 변환 처리하여 새로운 이미지로 만든다.
 def warp_image(image, src, dst, size):
     M = cv2.getPerspectiveTransform(src, dst)
     Minv = cv2.getPerspectiveTransform(dst, src)
-    warp_image = cv2.warpPerspective(image, M, size, flags = cv2.INTER_LINEAR)
+    warpping_image = cv2.warpPerspective(image, M, size, flags = cv2.INTER_LINEAR)
 
-    return warp_image, M, Minv
+    return warpping_image, M, Minv
 
 def warp_process_image(image):
     global nwindows
@@ -234,13 +225,13 @@ def warp_process_image(image):
     return lfit, rfit, lane
 
 # 다시 원근 변환, 사다리꼴을 원본 이미지에 오버레이
-def draw_lane(image, warp_image, Minv, left_fit, right_fit):
-    global Width, Height
+def draw_lane(image, warpping_image, Minv, left_fit, right_fit):
+    global VIDEO_WIDTH, VIDEO_HETGHT
 
     # warp image = 240이므로 yMax는 240이다. 
-    yMax = warp_image.shape[0] 
+    yMax = warpping_image.shape[0] 
     ploty = np.linspace(0, yMax - 1, yMax)
-    color_warp = np.zeros_like(warp_image).astype(np.uint8)
+    color_warp = np.zeros_like(warpping_image).astype(np.uint8)
 
     left_fitx = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
     right_fitx = right_fit[0] * ploty ** 2 + right_fit[1] * ploty + right_fit[2]
@@ -252,7 +243,7 @@ def draw_lane(image, warp_image, Minv, left_fit, right_fit):
 
     # 사다리꼴 이미지를 녹색으로, 거꾸로 원근 변환해서 원본 이미지와 오버레이
     color_warp = cv2.fillPoly(color_warp, np.int_([pts]), (0, 255, 0))
-    newwarp = cv2.warpPerspective(color_warp, Minv, (Width, Height))
+    newwarp = cv2.warpPerspective(color_warp, Minv, (VIDEO_WIDTH, VIDEO_HETGHT))
 
     return cv2.addWeighted(image, 1, newwarp, 0.3, 0)
 
@@ -274,10 +265,10 @@ def pub_motor(angle, speed):
     pub.publish(motor_control)
 
 def start():
-    global Width, Height, lane
+    global VIDEO_WIDTH, VIDEO_HETGHT, lane
 
     while not rospy.is_shutdown():
-        while not cv_image.size == (640 * 480 * 3):
+        if cv_image.size != (640 * 480 * 3):
             continue
         
         frame = cv_image
@@ -287,23 +278,22 @@ def start():
 
         dot_image = image
 
-        warp_image, M, Minv = warp_image(image, warp_src, warp_dist, (warp_image_w, warp_image_h))
+        warpping_image, M, Minv = warp_image(image, warp_src, warp_dist, (warp_image_w, warp_image_h))
 
         # 가우스부터 이진화까지 진행된다. 
-        left_fit, right_fit, lane = warp_process_image(warp_image)
-        lane_image = draw_lane(image, warp_image, Minv, left_fit, right_fit)
+        left_fit, right_fit, lane = warp_process_image(warpping_image)
+        lane_image = draw_lane(image, warpping_image, Minv, left_fit, right_fit)
 
         # warp 작업 후 4개의 좌표 점을 색별로 출력하기 위한 코드 
-        cv2.circle(dot_image, (ptx_x1,ptx_y1), 20, (255,0,0), -1)
-        cv2.circle(dot_image, (ptx_x2,ptx_y2), 20, (0,255,0), -1)
-        cv2.circle(dot_image, (ptx_x3,ptx_y3), 20, (0,0,255), -1)
-        cv2.circle(dot_image, (ptx_x4,ptx_y4), 20, (0,0,0), -1)
+        cv2.circle(dot_image, (pts1[0], pts1[1]), 20, (255,0,0), -1)
+        cv2.circle(dot_image, (pts2[0], pts2[1]), 20, (0,255,0), -1)
+        cv2.circle(dot_image, (pts3[0], pts3[1]), 20, (0,0,255), -1)
+        cv2.circle(dot_image, (pts4[0], pts4[1]), 20, (0,0,0), -1)
 
         # 출력 
         cv2.imshow(window_title, lane_image)
-        cv2.waitKey(1)
         cv2.imshow("lane", lane)
-        cv2.imshow("warp", warp_image)
+        cv2.imshow("warp", warpping_image)
         cv2.imshow("dot", dot_image)
 
         # 모터 제어 토픽을 읽어오기 

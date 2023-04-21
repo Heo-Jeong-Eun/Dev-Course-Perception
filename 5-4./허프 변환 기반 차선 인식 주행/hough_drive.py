@@ -17,25 +17,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import copy
+import math
+import random
+import time
+
+import cv2
 import rospy
 import rospkg
 import numpy as np
-import cv2
-import random
-import math
-import time
-import copy
 
-from xycar_msgs.msg import xycar_motor
-from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
+from sensor_msgs.msg import Image
+from xycar_msgs.msg import xycar_motor
 
 # 영상 사이즈에서 ROI 영역만 잘라서 사용한다. 
 # ROI 영역 = 세로 480에서 420-460, 즉 40 픽셀만큼만 잘라서 사용한다.
-Width = 640
-Height = 480
-Offset = 420
-Gap = 40
+VIDEO_WIDTH = 640
+VIDEO_HETGHT = 480
+ROI_OFFSET = 420
+ROI_GAP = 40
 
 motor_control = xycar_motor()
 
@@ -54,7 +55,7 @@ def image_callback(data):
 # 선분 그리기
 # 허프 변환 함수로 검출된 모든 선분을 다양한 색깔로 출력한다. 
 def draw_lines(image, lines):
-    global Offset
+    global ROI_OFFSET
     
     # loop를 돌며 시작점과 끝점을 찾고 random하게 색을 입혀 선을 긋는다. 
     for line in lines:
@@ -63,7 +64,7 @@ def draw_lines(image, lines):
                  random.randint(0, 255))
         
         # 허프 변환에서 사용하는 관심 영역에 넣기 위해 offset을 더해준다. 
-        image = cv2.line(image, (x1, y1 + Offset), (x2, y2 + Offset), color, 2)
+        image = cv2.line(image, (x1, y1 + ROI_OFFSET), (x2, y2 + ROI_OFFSET), color, 2)
     
     return image
 
@@ -97,7 +98,7 @@ def draw_rectangle(image, lpos, rpos, offset = 0):
 
 # 왼쪽 선분, 오른쪽 선분
 def divide_left_right(lines):
-    global Width
+    global VIDEO_WIDTH
     low_slope_threshold = 0
     high_slope_threshold = 10
 
@@ -113,7 +114,7 @@ def divide_left_right(lines):
             slope = float(y2 - y1) / float(x2 - x1)
         
         # 선분의 기울기를 구해, 기울기 절대값이 10 이하인 것만 추출 
-        if (abs(slope) < low_slope_threshold) and (abs(slope) > high_slope_threshold):
+        if (abs(slope) > low_slope_threshold) and (abs(slope) < high_slope_threshold):
             slopes.append(slope)
             new_lines.append(line[0])
 
@@ -129,9 +130,9 @@ def divide_left_right(lines):
             slope = slopes[j]
             x1, y1, x2, y2 = line
 
-            if (slope < 0) and (x2 < Width / 2 - 90):
+            if (slope < 0) and (x2 < VIDEO_WIDTH / 2 - 90):
                 left_lines.append([line.tolist()])
-            elif(slope > 0) and (x1 > Width / 2 + 90):
+            elif(slope > 0) and (x1 > VIDEO_WIDTH / 2 + 90):
                 right_lines.append([line.tolist()])
         
         return left_lines, right_lines
@@ -168,8 +169,8 @@ def get_line_params(lines):
 
 # lpos, rpos, 차선의 위치를 return 한다. 
 def get_line_pos(image, lines, left = False, right = False):
-    global Width, Height
-    global Offset, Gap
+    global VIDEO_WIDTH, VIDEO_HETGHT
+    global ROI_OFFSET, ROI_GAP
 
     m, b = get_line_params(lines)
 
@@ -181,27 +182,27 @@ def get_line_pos(image, lines, left = False, right = False):
         if left:
             pos = 0
         if right:
-            pos = Width
+            pos = VIDEO_WIDTH
     else:
-        y = Gap / 2
+        y = ROI_GAP / 2
 
         # y = m0x + b0
         pos = (y - b) / m
 
-        b += Offset
-        x1 = (Height - b) / float(m)
-        x2 = ((Height / 2) - b) / float(m)
+        b += ROI_OFFSET
+        x1 = (VIDEO_HETGHT - b) / float(m)
+        x2 = ((VIDEO_HETGHT / 2) - b) / float(m)
 
         # 파란선 출력 
-        cv2.line(image, (int(x1), Height), (int(x2), (Height / 2)), (255, 0, 0), 3)
+        cv2.line(image, (int(x1), VIDEO_HETGHT), (int(x2), (VIDEO_HETGHT / 2)), (255, 0, 0), 3)
     
     return image, int(pos)
 
 # 카메라 영상 처리 
 # show image, return lpos, rpos
 def process_image(frame):
-    global Width
-    global Offset, Gap
+    global VIDEO_WIDTH
+    global ROI_OFFSET, ROI_GAP
 
     # gray 색상으로 전환
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -217,7 +218,7 @@ def process_image(frame):
 
     # HoughLineP, ROI 영역에서 선분 찾기 
     # edge_image -> 640 * 480 size, roi에서 offset을 더해 관심 영역만 저장
-    roi = edge_image[Offset : Offset + Gap, 0 : Width]
+    roi = edge_image[ROI_OFFSET : ROI_OFFSET + ROI_GAP, 0 : VIDEO_WIDTH]
 
     # HoughLineP(image, rho, theta, theshold, minLineLength, maxLineGap)
     all_lines = cv2.HoughLineP(roi, 1, math.pi / 180, 30, 30, 10)
@@ -239,12 +240,12 @@ def process_image(frame):
     frame = cv2.line(frame, (230, 235), (410, 235), (255, 255, 255), 2)
 
     # 차선과 화면 중앙에 사각형 그리기 
-    frame = draw_rectangle(frame, lpos, rpos, offset = Offset)
+    frame = draw_rectangle(frame, lpos, rpos, offset = ROI_OFFSET)
 
     return lpos, rpos
 
 def draw_steer(image, steer_angle):
-    global Width, Height, arrow_pic
+    global VIDEO_WIDTH, VIDEO_HETGHT, arrow_pic
 
     # 조향 이미지 읽어오기 
     arrow_pic = cv2.imread('steer_arrow.png', cv2.INREAD_COLOR)
@@ -253,7 +254,7 @@ def draw_steer(image, steer_angle):
     origin_Height = arrow_pic.shape[0]
     origin_Width = arrow_pic.shape[1]
     steer_wheel_center = origin_Height * 0.74
-    arrow_Height = Height / 2
+    arrow_Height = VIDEO_HETGHT / 2
     arrow_Width = (arrow_Height * 462) / 728
 
     # steer_angle에 비례하여 회전
@@ -267,15 +268,15 @@ def draw_steer(image, steer_angle):
     gray_arrow = cv2.cvtColor(arrow_pic, cv2.COLOR_BGR2GRAY)
     _, mask = cv2.threshold(gray_arrow, 1, 255, cv2.THRESH_BINARY_INV)
 
-    arrow_roi = image[arrow_Height : Height, 
-                      (Width / 2 - arrow_Width / 2) : (Width / 2 + arrow_Width / 2)]
+    arrow_roi = image[arrow_Height : VIDEO_HETGHT, 
+                      (VIDEO_WIDTH / 2 - arrow_Width / 2) : (VIDEO_WIDTH / 2 + arrow_Width / 2)]
     arrow_roi = cv2.add(arrow_pic, arrow_roi, mask = mask)
 
     res = cv2.add(arrow_roi, arrow_pic)
 
     # ? 
-    image[(Height - arrow_Height) : Height,
-          (Width / 2 - arrow_Width / 2) : (Width / 2 + arrow_Width / 2)] = res
+    image[(VIDEO_HETGHT - arrow_Height) : VIDEO_HETGHT,
+          (VIDEO_WIDTH / 2 - arrow_Width / 2) : (VIDEO_WIDTH / 2 + arrow_Width / 2)] = res
     
     # 'steer' 타이틀로 화면에 표시
     # 원본 사진 + 검출 차선 + 평균 차선 + 차선 위치 표시 + 화면 중앙 표시 핸들 그림 + 조향각 화살표 표시 
@@ -300,7 +301,7 @@ def pub_motor(angle, speed):
 
 # 시작점
 def start():
-    global image, Width, Height
+    global image, VIDEO_WIDTH, VIDEO_HETGHT
 
     while not rospy.is_shutdown():
         # 허프 변환을 기반으로 영상 처리 진행, 차선을 찾고 위치 표시
