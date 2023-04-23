@@ -1,8 +1,8 @@
 //
 //  main.cpp
-//  X-Code
+//  warp_process_image
 //
-//  Created by J on 2023/04/21.
+//  Created by J on 2023/04/23.
 //
 
 #include <iostream>
@@ -109,7 +109,6 @@ int main()
     Mat map1, map2;
     initUndistortRectifyMap(calibrate_mtx, distCoeffs, Mat(), cameraMatrix, imageSize, CV_32FC1, map1, map2);
 
-
     while (true) {
         capture >> src;
 
@@ -137,3 +136,4 @@ int main()
             break;
     }
 }
+
