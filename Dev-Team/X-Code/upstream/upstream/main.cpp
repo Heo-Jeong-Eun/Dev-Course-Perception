@@ -3,7 +3,7 @@
 //  upstream
 //
 //  Created by J on 2023/04/21.
-//
+// 
 
 #include <iostream>
 #include "opencv2/opencv.hpp"
@@ -28,8 +28,8 @@ Mat cameraMatrix = getOptimalNewCameraMatrix(calibrate_mtx, distCoeffs, imageSiz
 // calibrate 함수
 Mat calibrate_image(Mat src, Mat map1, Mat map2)
 {
-    // python과의 차이점은 getOptimalNewCameraMatrix함수가 roi값을 리턴하지 않는다는 것인데,
-    // 깔끔한 영상처리를 위해 python에서 return받은 roi값을 가져왔습니다.
+    // python과의 차이점은 getOptimalNewCameraMatrix함수가 roi값을 리턴하지 않는다는 것
+    // 깔끔한 영상처리를 위해 python에서 return받은 roi값을 가져왔다.
     Rect roi(34, 61, 585, 360);
 
     // image calibrating
@@ -94,7 +94,7 @@ int main()
     Mat src;
 
     /*
-    * FPS 세팅함수를 사용해서 배속조정이 가능한지 실험해보았는데, 해당 함수로는 배속 조정이 불가합니다.
+    * FPS 세팅함수를 사용해서 배속조정이 가능한지 실험, 해당 함수로는 배속 조정이 불가
     capture.set(CAP_PROP_FPS, 50);
     */
 
@@ -131,7 +131,7 @@ int main()
         imshow("calibrated image", calibrated_image);
         imshow("warped image", warped_image);
 
-        // waitKey(n)의 n값에 따라 동영상의 배속, 감속됨
+        // waitKey(n)의 n값에 따라 동영상의 배속, 감속된다. 
         if (waitKey(20) == 27) // ESC
             break;
     }
