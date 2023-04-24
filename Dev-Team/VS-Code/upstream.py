@@ -99,10 +99,10 @@ def calibrate_image(src):
     return cv2.resize(calibrated_image, (image_width, image_height))
 
 # 변환전과 후의 4개 점 좌표를 전달해서 이미지를 원근 변환 처리하여 새로운 이미지로 만든다.
-def warp_image(img, src, dst, size):
+def warp_image(image, src, dst, size):
     src_to_dst_mtx = cv2.getPerspectiveTransform(src, dst)
     dst_to_src_mtx = cv2.getPerspectiveTransform(dst, src)
-    warp_img = cv2.warpPerspective(img, src_to_dst_mtx, size, flags = cv2.INTER_LINEAR)
+    warp_img = cv2.warpPerspective(image, src_to_dst_mtx, size, flags = cv2.INTER_LINEAR)
     
     return warp_img, src_to_dst_mtx, dst_to_src_mtx
 
@@ -162,7 +162,7 @@ def warp_process_image(image):
     before_l_detected, before_r_detected = True, True
 
     # ? 
-    out_img = np.dstack((lane, lane, lane)) * 255
+    out_image = np.dstack((lane, lane, lane)) * 255
 
     # 윈도우 10개 그리기 
     for window in range((num_sliding_window - 1), 0, -1):
@@ -224,8 +224,8 @@ def warp_process_image(image):
         win_xrl = rightx_current - width_sliding_window
         win_xrh = rightx_current + width_sliding_window
 
-        # cv2.rectangle(out_img, (win_xll, win_yl), (win_xlh, win_yh), (0, 255, 0), 2)
-        # cv2.rectangle(out_img, (win_xrl, win_yl), (win_xrh, win_yh), (0, 255, 0), 2)
+        # cv2.rectangle(out_image, (win_xll, win_yl), (win_xlh, win_yh), (0, 255, 0), 2)
+        # cv2.rectangle(out_image, (win_xrl, win_yl), (win_xrh, win_yh), (0, 255, 0), 2)
 
         # 슬라이딩 윈도우 박스 하나 안에 있는 흰색 픽셀의 x좌표를 모두 수집
         # 왼쪽과 오른쪽 슬라이딩 박스를 따로 작업한다. 
@@ -242,7 +242,7 @@ def warp_process_image(image):
         # 이 코드 이전에는 흰점 x 좌표를 수집하기만 하고 이후 평균값을 구한 뒤 다음에 쌓아야 하는 window의 위치가 정해진다. 
         if len(good_left_inds) > l_min_points:
             leftx_current = np.int32(np.mean(nz[1][good_left_inds]))
-            cv2.rectangle(out_img, (win_xll, win_yl), (win_xlh, win_yh), (0, 255, 0), 2)
+            cv2.rectangle(out_image, (win_xll, win_yl), (win_xlh, win_yh), (0, 255, 0), 2)
             l_box_center.append([(win_xll + win_xlh) // 2, (win_yl + win_yh) // 2])
             before_l_detected = True
         else:
@@ -250,7 +250,7 @@ def warp_process_image(image):
 
         if len(good_right_inds) > r_min_points:
             rightx_current = np.int32(np.mean(nz[1][good_right_inds]))
-            cv2.rectangle(out_img, (win_xrl, win_yl), (win_xrh, win_yh), (0, 255, 0), 2)
+            cv2.rectangle(out_image, (win_xrl, win_yl), (win_xrh, win_yh), (0, 255, 0), 2)
             r_box_center.append([(win_xrl + win_xrh) // 2, (win_yl + win_yh) // 2])
             before_r_detected = True
         else:
@@ -267,15 +267,15 @@ def warp_process_image(image):
         right_lane_inds = np.concatenate(right_lane_inds)
 
         # 기존 흰색 차선 픽셀을 왼쪽과 오른쪽 각각 파란색과 빨간색으로 색 변경
-        out_img[(window * window_height) + nz[0][left_lane_inds], nz[1][left_lane_inds]] = [255, 0, 0]
-        out_img[(window * window_height) + nz[0][right_lane_inds], nz[1][right_lane_inds]] = [0, 0, 255]
+        out_image[(window * window_height) + nz[0][left_lane_inds], nz[1][left_lane_inds]] = [255, 0, 0]
+        out_image[(window * window_height) + nz[0][right_lane_inds], nz[1][right_lane_inds]] = [0, 0, 255]
 
     # 슬라이딩 윈도우의 중심점(x좌표) 9개를 가지고 2차 함수를 만들어낸다. 
     # 2차 함수 -> x = ay^2 + by + c
     lfit = np.polyfit(np.array(ly), np.array(lx), 2)
     rfit = np.polyfit(np.array(ry), np.array(rx), 2)
 
-    return lfit, rfit, np.mean(lx), np.mean(rx), out_img, l_box_center, r_box_center, lane
+    return lfit, rfit, np.mean(lx), np.mean(rx), out_image, l_box_center, r_box_center, lane
 
 # 왼쪽 선분, 오른쪽 선분
 def get_line_pos(list):
