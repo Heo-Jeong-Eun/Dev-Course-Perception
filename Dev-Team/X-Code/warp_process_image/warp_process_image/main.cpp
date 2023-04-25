@@ -2,7 +2,7 @@
 //  main.cpp
 //  warp_process_image
 //
-//  Created by J on 2023/04/23.
+//  Created by J on 2023/04/26.
 // 
 
 #include <iostream>
@@ -97,8 +97,9 @@ Mat warp_process_image(Mat image)
     split(hls, L);
 
     Mat lane;
-    threshold(L, lane, lane_bin_th, 255, THRESH_BINARY);
-    // threshold(L, lane, lane_bin_th, 255, THRESH_BINARY_INV);
+    // L에 3채널 데이터가 들어와서 원하는 L채널 데이터를 추출한다. 
+    threshold(L[1], lane, lane_bin_th, 255, THRESH_BINARY);
+    // threshold(L[1], lane, lane_bin_th, 255, THRESH_BINARY_INV);
 
     vector<Mat> dividen_lane;
     int rows_per_window = lane.rows / num_sliding_window;
