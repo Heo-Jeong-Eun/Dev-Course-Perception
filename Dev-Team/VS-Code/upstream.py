@@ -1,4 +1,4 @@
-# 2023-04-24 (J)
+# 2023-04-26 (J)
 
 import cv2
 import random
@@ -77,7 +77,7 @@ def calibrate_image(src):
     # 자이카 카메라의 calibration 보정값 
     # warp 변환 시 필요한 3x3 변환 행렬값 
     calibrate_mtx = np.array([
-        [ 350.354184, 0.0, 328.104147],
+        [350.354184, 0.0, 328.104147],
         [0.0, 350.652653, 236.540676],
         [0.0, 0.0, 1.0]
     ])
@@ -88,7 +88,6 @@ def calibrate_image(src):
     # getOptimalNewCameraMatrix() 함수는 카메라 메트릭스, 왜곡 계수, 회전 / 이동 벡터 등을 반환한다. 
     # getOptimalNewCameraMatrix() 함수로 calibaration에 필요한 mtx와 roi를 구한다.
     # cal_roi = roi 영역 좌표값 
-    # ? -> 이미지의 w와 h를 두 번 넣는 이유 
     cal_mtx, cal_roi = cv2.getOptimalNewCameraMatrix(calibrate_mtx, dist,
                             (image_width, image_height), 1, (image_width, image_height))
 
@@ -196,7 +195,7 @@ def warp_process_image(image):
         histogram = np.sum(dividen_lane[window], axis = 0)
 
         # x축, x좌표를 반으로 나누어 왼쪽 차선과 오른쪽 차선을 구분한다.
-        # ? -> 히스토그램 중앙 즉, 이미지를 세로로 나눈 값으로 갖는 변수 생성
+        # 히스토그램 중앙 즉, 이미지를 세로로 나눈 값으로 갖는 변수 생성
         midpoint = np.int32(histogram.shape[0] / 2)
         
         # r_min_points, l_min_points에 5를 저장한다. 
@@ -212,44 +211,47 @@ def warp_process_image(image):
             rightx_current = np.argmax(histogram[midpoint:]) + midpoint
         
         # 이전 window에서 차선을 둘 다 인식한 경우
-        elif before_l_detected == True and before_r_detected == True:   
-            # 이번 window에서는 이전 window의 x 값 +-margin 값 이내의 window를 찾는다. 
+        elif before_l_detected == True and before_r_detected == True:  
+            # 이번 window에서는 이전 윈도우의 x값 +-margin 값 이내의 윈도우를 찾는다. 
             # lx[-1] - window_margin이 0 아래로 떨어지는 예외를 막기 위해 max함수 사용
             # argmax 함수 뒤에 인덱스값을 더해주는 이유는 히스토그램의 시작점을 0으로 계산한 인덱스 값이 return되기 때문에, 시작점의 값을 더해주어야 한다.
-            leftx_current = np.argmax(histogram[max(0, lx[-1] - window_margin) : lx[-1] + window_margin]) + max(0, lx[-1] - window_margin)
-            rightx_current = np.argmax(histogram[rx[-1] - window_margin : rx[-1] + window_margin]) + rx[-1] - window_margin
+            leftx_current = np.argmax(histogram[max(0, lx[-1] - window_margin): lx[-1] + window_margin]) + max(0, lx[-1] - window_margin)
+            rightx_current = np.argmax(histogram[rx[-1] - window_margin : min(histogram.shape[0] - 1, rx[-1] + window_margin)]) + rx[-1] - window_margin
 
-        # 이전 window에서 왼쪽 차선 인식 X, 오른쪽 차선만 인식 O한 경우 
+        # 이전 window에서 왼쪽 차선 인식 X, 오른쪽 차선만 인식 O한 경우
         elif before_l_detected == False and before_r_detected == True:
             # 이전 우측 차선을 기준으로 왼쪽으로 차선의 폭만큼 이동하여 좌측 차선을 찾는데, 이때 0보다 작으면 실행하지 않는다. 
             if rx[-1]  - lane_width > 0: # lane_width  = 200 
                 leftx_current = np.argmax(histogram[:rx[-1] - lane_width])
-            
+            else:
+                leftx_current = None
+
             # 우측 차선은 이전 window에서 찾은 차선을 기준으로 탐색한다. 
             # 이전 차선의 x값을 기준으로 좌우 마진값만큼 탐색해 히스토그램을 작성한다. 
             # 이때 히스토그램의 최대값을 차선의 x좌표로 인식
-            # ? -> error ! 
-            rightx_current = np.argmax(histogram[rx[-1] - window_margin :]) + histogram[rx[-1] - window_margin]
-            # rightx_current = np.argmax(histogram[rx[-1] - window_margin : histogram[rx[-1] + window_margin]]) + histogram[rx[-1] - window_margin]
+            rightx_current = np.argmax(histogram[max(0, rx[-1] - window_margin) : min(histogram.shape[0] - 1, rx[-1] + window_margin)]) + rx[-1] - window_margin 
 
+            '''
             # 노이즈 제거를 위한 코드 
             # 좌, 우 차선의 중앙이 100 픽셀보다 작게 차이가 나는 경우 = 좌, 우 차선이 잘못 인식된 경우 
             # 때문에 왼쪽 차선을 인식하도록 하는 mid_point 값을 sliding window의 면적값으로 늘려 인식하지 않도록 한다. 
             if abs(leftx_current - rightx_current) < 100:
                 l_min_points = (width_sliding_window * 2) * (warp_image_height / num_sliding_window)
+            '''
 
         # 이전 window에서 왼쪽 차선은 인식 O, 오른쪽 차선은 인식 X한 경우 
         # 이전 window에서 차선을 하나만 인식했을 때, 있던 차선은 margin값 이내에서, 다른 차선은 lane width만큼 이동 후 찾아낸다. 
         elif before_l_detected == True and before_r_detected == False:   
-            leftx_current = np.argmax(histogram[max(0, lx[-1] - window_margin):lx[-1] + window_margin]) + max(0, lx[-1] - window_margin)
-            rightx_current = np.argmax(histogram[min(lx[-1] + lane_width, histogram.shape[0] - 1):]) + min(lx[-1] + lane_width, histogram.shape[0] - 1)
+            leftx_current = np.argmax(histogram[max(0, lx[-1] - window_margin) : lx[-1] + window_margin]) + max(0, lx[-1] - window_margin)
 
-            if rightx_current - leftx_current < 100:
-                    r_min_points = (width_sliding_window * 2) * (warp_image_height / num_sliding_window)
+            if lx[-1] + lane_width < histogram.shape[0]:
+                rightx_current = np.argmax(histogram[lx[-1] + lane_width:]) + lx[-1] + lane_width
+            else:
+                rightx_current = None
 
         # 이전 window에서 차선을 둘 다 인식하지 못한 경우 
         elif before_l_detected == False and before_r_detected == False:
-            # 처음 sliding window를 쌓을 때처럼 중앙을 기준으로 좌, 우 차선을 인식한다. 
+            # 처음 sliding window를 쌓을 때처럼 중앙을 기준으로 좌, 우 차선을 인식한다.
             leftx_current = np.argmax(histogram[:midpoint])
             rightx_current = np.argmax(histogram[midpoint:]) + midpoint
         
@@ -264,75 +266,92 @@ def warp_process_image(image):
         win_yl = (window + 1) * window_height
         win_yh = window * window_height
 
-        # sliding window를 그리기 위한 window의 x 값 
-        # width_sliding_window = 20
-        win_xll = leftx_current - width_sliding_window
-        win_xlh = leftx_current + width_sliding_window
-        win_xrl = rightx_current - width_sliding_window
-        win_xrh = rightx_current + width_sliding_window
+        # 왼쪽, 오른쪽 차선을 발견한 경우, 발견하지 못한 경우의 코드를 나눈다. 
+        # 오른쪽 차선의 경우 
+        if rightx_current != None:
+            # sliding window를 그리기 위한 window의 x 값 
+            # width_sliding_window = 20
+            win_xrl = rightx_current - width_sliding_window
+            win_xrh = rightx_current + width_sliding_window
 
-        # cv2.rectangle(out_image, (win_xll, win_yl), (win_xlh, win_yh), (0, 255, 0), 2)
-        # cv2.rectangle(out_image, (win_xrl, win_yl), (win_xrh, win_yh), (0, 255, 0), 2)
+            # (nz[1], nz[0]) 좌표는 차선으로 인식된 픽셀의 정보이다. 
+            # 따라서 y 좌표가 0 이상, sliding window 크기 미만, x좌표가 위에서 설정한 sliding window x값 이내에 있고, 0이 아닌 경우에 변수에 인덱스를 저장한다. 
+            # sliding window 박스 하나 안에 있는 흰색 픽셀의 x좌표를 모두 수집
+            # 왼쪽과 오른쪽 sliding 박스를 따로 작업한다. 이때 1번 window는 히스토그램으로 확보가 되어있는 상태이다. 
+            good_right_inds = ((nz[0] >= 0) & (nz[0] < window_height) & (nz[1] >= win_xrl) & (nz[1] < win_xrh)).nonzero()[0]
 
-        # (nz[1], nz[0]) 좌표는 차선으로 인식된 픽셀의 정보이다. 
-        # 따라서 y 좌표가 0 이상, sliding window 크기 미만, x좌표가 위에서 설정한 sliding window x값 이내에 있고, 0이 아닌 경우에 변수에 인덱스를 저장한다. 
-        # sliding window 박스 하나 안에 있는 흰색 픽셀의 x좌표를 모두 수집
-        # 왼쪽과 오른쪽 sliding 박스를 따로 작업한다. 이때 1번 window는 히스토그램으로 확보가 되어있는 상태이다. 
-        good_left_inds = ((nz[0] >= 0) & (nz[0] < window_height) & (nz[1] >= win_xll) & (nz[1] < win_xlh)).nonzero()[0]
-        good_right_inds = ((nz[0] >= 0) & (nz[0] < window_height) & (nz[1] >= win_xrl) & (nz[1] < win_xrh)).nonzero()[0]
+            # ! -> for loop마다 초기화되어 기존 good_right_inds 변수를 그대로 사용해도 될 것 같다. 
+            right_lane_inds.append(good_right_inds)
 
-        # ? -> for loop마다 초기화되어 기존 good_left_inds 변수를 그대로 사용해도 될 것 같다. 
-        left_lane_inds.append(good_left_inds)
-        right_lane_inds.append(good_right_inds)
-
-        # 이 값을 위에 쌓을 sliding window의 중심점으로 사용한다. -> for 반복, 10번
-        # if 조건은 확실히 차선인 경우를 의미한다. 
-        # 이 코드 이전에는 흰점 x 좌표를 수집하기만 하고 이후 평균값을 구한 뒤 다음에 쌓아야 하는 window의 위치가 정해진다. 
-        # 위에서 구한 x좌표 리스트에서 흰색 점이 l_min_points개 이상인 경우
-        if len(good_left_inds) > l_min_points:
-            # sliding window의 x좌표를 인덱스 값들의 x좌표의 평균으로 변경한다. 
-            leftx_current = np.int32(np.mean(nz[1][good_left_inds]))
-
-            # sliding window 그리기 
-            cv2.rectangle(out_image, (win_xll, win_yl), (win_xlh, win_yh), (0, 255, 0), 2)
+            # 이 값을 위에 쌓을 sliding window의 중심점으로 사용한다. -> for 반복, 10번
+            # if 조건은 확실히 차선인 경우를 의미한다. 
+            # 이 코드 이전에는 흰점 x 좌표를 수집하기만 하고 이후 평균값을 구한 뒤 다음에 쌓아야 하는 window의 위치가 정해진다. 
+            # 위에서 구한 x좌표 리스트에서 흰색 점이 r_min_points개 이상인 경우
+            if len(good_right_inds) > r_min_points:
+                # sliding window의 x좌표를 인덱스 값들의 x좌표의 평균으로 변경한다. 
+                rightx_current = np.int32(np.mean(nz[1][good_right_inds]))
+                
+                # sliding window 그리기 
+                cv2.rectangle(out_image, (win_xrl, win_yl), (win_xrh, win_yh), (0, 255, 0), 2)
+                
+                # ! -> r_box_center 변수는 조향을 위해 선언, 지금은 필요하지 않다.  
+                r_box_center.append([(win_xrl + win_xrh) // 2, (win_yl + win_yh) // 2])
+                
+                # 다음 window에서 차선을 인식 했음을 알린다. 
+                before_r_detected = True
             
-            # ? -> l_box_center 변수는 조향을 위해 선언, 지금은 필요하지 않다.  
-            l_box_center.append([(win_xll + win_xlh) // 2, (win_yl + win_yh) // 2])
-            
-            # 다음 window에서 차선을 인식 했음을 알린다. 
-            before_l_detected = True    
-        else:
-            before_l_detected = False
+            else:
+                before_r_detected = False
 
-        if len(good_right_inds) > r_min_points:
-            rightx_current = np.int32(np.mean(nz[1][good_right_inds]))
-            cv2.rectangle(out_image, (win_xrl, win_yl), (win_xrh, win_yh), (0, 255, 0), 2)
-            r_box_center.append([(win_xrl + win_xrh) // 2, (win_yl + win_yh) // 2])
-            before_r_detected = True     
+            # 좌, 우 차선들의 라인을 따라 2차 함수를 만들기 위한 변수 선언 
+            # sliding window의 중심점(x좌표)을 lx / ly, rx / ry에 담아둔다. 
+            rx.append(rightx_current)
+            ry.append((win_yl + win_yh) / 2)
+
+            # 10번의 loop가 끝나면 그동안 모은 점들을 저장한다.
+            right_lane_inds = np.concatenate(right_lane_inds)
+
+            # 기존 흰색 차선 픽셀을 왼쪽과 오른쪽 각각 파란색과 빨간색으로 색 변경
+            out_image[(window * window_height) + nz[0][right_lane_inds], nz[1][right_lane_inds]] = [0, 0, 255]
+        
         else:
             before_r_detected = False
 
-        # 좌, 우 차선들의 라인을 따라 2차 함수를 만들기 위한 변수 선언 
-        # sliding window의 중심점(x좌표)을 lx / ly, rx / ry에 담아둔다. 
-        lx.append(leftx_current)
-        ly.append((win_yl + win_yh) / 2)
-        rx.append(rightx_current)
-        ry.append((win_yl + win_yh) / 2)
-    
-        # 10번의 loop가 끝나면 그동안 모은 점들을 저장한다. 
-        left_lane_inds = np.concatenate(left_lane_inds)
-        right_lane_inds = np.concatenate(right_lane_inds)
+        # 왼쪽 차선의 경우 
+        if leftx_current != None:
+            win_xll = leftx_current - width_sliding_window
+            win_xlh = leftx_current + width_sliding_window
 
-        # 기존 흰색 차선 픽셀을 왼쪽과 오른쪽 각각 파란색과 빨간색으로 색 변경
-        out_image[(window * window_height) + nz[0][left_lane_inds], nz[1][left_lane_inds]] = [255, 0, 0]
-        out_image[(window * window_height) + nz[0][right_lane_inds], nz[1][right_lane_inds]] = [0, 0, 255]
+            good_left_inds = ((nz[0] >= 0) & (nz[0] < window_height) & (nz[1] >= win_xll) & (nz[1] < win_xlh)).nonzero()[0]
 
-        # 좌, 우 차선의 2차 함수를 변수에 저장한다. 
-        # sliding window의 중심점(x좌표) 10개를 가지고 2차 함수를 만들어낸다. 
-        # 2차 함수 -> x = ay^2 + by + c
-        lfit = np.polyfit(np.array(ly), np.array(lx), 2)
-        rfit = np.polyfit(np.array(ry), np.array(rx), 2)
+            left_lane_inds.append(good_left_inds)
 
+            if len(good_left_inds) > l_min_points:
+                leftx_current = np.int32(np.mean(nz[1][good_left_inds]))
+                cv2.rectangle(out_image, (win_xll, win_yl), (win_xlh, win_yh), (0, 255, 0), 2)
+                l_box_center.append([(win_xll + win_xlh) // 2, (win_yl + win_yh) // 2])
+                before_l_detected = True
+            else:
+                before_l_detected = False
+
+            lx.append(leftx_current)
+            ly.append((win_yl + win_yh) / 2)
+
+            left_lane_inds = np.concatenate(left_lane_inds)
+
+            out_image[(window * window_height) + nz[0][left_lane_inds], nz[1][left_lane_inds]] = [255, 0, 0]
+        else:
+            before_l_detected = False
+
+        # cv2.rectangle(out_image, (win_xll, win_yl), (win_xlh, win_yh), (0, 255, 0), 2)
+        # cv2.rectangle(out_image, (win_xrl, win_yl), (win_xrh, win_yh), (0, 255, 0), 2)  
+
+    # 좌, 우 차선의 2차 함수를 변수에 저장한다. 
+    # sliding window의 중심점(x좌표) 10개를 가지고 2차 함수를 만들어낸다. 
+    # 2차 함수 -> x = ay^2 + by + c
+    lfit = np.polyfit(np.array(ly), np.array(lx), 2)
+    rfit = np.polyfit(np.array(ry), np.array(rx), 2)
+        
     # 반환값 = 좌, 우 차선의 2차 함수, lx와 rx의 평균값, out_image, l_box_center, r_box_center, binary image
     return lfit, rfit, np.mean(lx), np.mean(rx), out_image, l_box_center, r_box_center, lane
 
@@ -423,10 +442,10 @@ while True:
     cv2.circle(cal, (pts3_x, pts3_y), 20, (255, 0, 0), -1)
     cv2.circle(cal, (pts4_x, pts4_y), 20, (255, 0, 0), -1)
 
-    cv2.imshow("calibrated image 1", cal)
+    cv2.imshow("calibrated image", cal)
     cv2.imshow("bin", lane)
     cv2.imshow("warp", warp)
-    cv2.imshow("box_img", out_image)
+    cv2.imshow("box image", out_image)
 
     # 종료 
     if cv2.waitKey(10) == 27:
@@ -435,9 +454,20 @@ while True:
 '''
 --- 수정사항 ---
 
---- 4.15---
-* sliding window의 개수를 10개로 변경하였습니다.
+--- 4.15 ---
+* sliding window의 개수를 10개로 변경
 
 --- 4.16 ---
-* window를 그리는 순서를 위 -> 아래에서 아래 -> 위로 그리도록 변경하였습니다.
+* window를 그리는 순서를 위 -> 아래에서 아래 -> 위로 그리도록 변경
+
+--- 4.23 ---
+* global offset = roi_offset 이름으로 추가, 420 저장
+* draw_lines의 image를 관심 영역에 넣기 위해 offset 더하는 부분을 추가
+
+--- 4.26 ---
+* warp_process_image -> elif before_l_detected == True and before_r_detected == True: ~ elif before_l_detected == False and before_r_detected == False:
+* 좌, 우 마진값 내에서 찾도록 코드 변경, min_point를 설정해 억지로 차선 인식을 막았던 코드는 삭제했다. 
+
+* if rightx_current != None: ~ return 
+* 좌, 우측 차선을 발견한 경우와 발견하지 못한 경우의 코드를 나누었다. 
 '''
