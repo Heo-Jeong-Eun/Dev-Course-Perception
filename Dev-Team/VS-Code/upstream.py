@@ -173,7 +173,7 @@ def warp_process_image(image):
     # 아래 window의 x좌표보다 +-50 픽셀 이내의 다음 점을 찾기 위한 마진값
     window_margin = 20  
 
-    # 차선 평균 픽셀 너비 = 240
+    # 차선 평균 픽셀 너비 = 200
     lane_width = 200  
 
     lx, ly, rx, ry = [], [], [], []
@@ -205,7 +205,7 @@ def warp_process_image(image):
         # 첫 window를 기반으로 위로 쌓아가며 이전 window에서 좌, 우 차선이 인식이 되었는지 확인 후 코드 진행한다. 
         # 화면 중앙을 나누는 기준 = 세로 
         # 첫 window를 기반으로 그리기 위해 첫 window는 화면 중앙을 기준으로 좌, 우 차선을 나눈다.
-        if window == num_sliding_window - 1: # ? -> -1   
+        if window == num_sliding_window - 1: 
             # argmax = 배열에서 가장 높은 값의 인덱스를 반환한다. 
             leftx_current = np.argmax(histogram[:midpoint])
             rightx_current = np.argmax(histogram[midpoint:]) + midpoint
@@ -449,6 +449,8 @@ while True:
 
     # 종료 
     if cv2.waitKey(10) == 27:
+        break
+    if(capture.get(cv2.CAP_PROP_POS_FRAMES) == capture.get(cv2.CAP_PROP_FRAME_COUNT)):
         break
 
 '''
