@@ -2,7 +2,7 @@
 //  main.cpp
 //  warp_process_image
 //
-//  Created by J on 2023/04/25.
+//  Created by J on 2023/04/25
 // 
 
 #include <iostream>
@@ -110,136 +110,6 @@ Mat warp_process_image(Mat image)
     }
 
     return lane;
-
-    /*
-    int window_margin = 20;
-    int lane_width = 200;
-    vector<int> lx, ly, rx, ry;
-    vector<int> l_box_center, r_box_center;
-
-    bool before_l_detected = true;
-    bool before_r_detected = true;
-
-    // ? -> CV_8UC3 
-    Mat out_img = Mat::zeros(lane.size(), CV_8UC3);
-    
-    for (int window = num_sliding_window - 1; window > 0; --window) 
-    {
-        vector<int> left_lane_inds, right_lane_inds;
-
-        Mat histogram = sum(dividen_lane[window])[0];
-
-        if (window == num_sliding_window - 1) 
-        {
-            leftx_current = Point2f(0, Mat(histogram.rowRange(0, midpoint)).dot( Mat(Range::all(), Range(0, 1))));
-            rightx_current = Point2f(midpoint, Mat(histogram.rowRange(midpoint, histogram.rows)).dot(Mat(Range::all(), Range(0, 1)))) + midpoint;
-        }
-        else if (before_l_detected == true && before_r_detected == true) 
-        {
-            leftx_current = Point2f(0, Mat(histogram.rowRange(0, lx.back() + window_margin)).dot(Mat(Range::all(), Range(0, 1))));
-            rightx_current = Point2f(rx.back() - window_margin, Mat(histogram.rowRange(rx.back() - window_margin, rx.back() + window_margin)).dot(Mat(Range::all(), Range(0, 1)))) + rx.back() - window_margin;
-        }
-        else if (before_l_detected == false && before_r_detected == true) 
-        {
-            if (rx.back() - lane_width > 0) 
-            {
-                leftx_current = Point2f(0, Mat(histogram.rowRange(0, rx.back() - lane_width)).dot(Mat(Range::all(), Range(0, 1))));
-                rightx_current = Point2f(rx.back() - window_margin, Mat(histogram.rowRange(rx.back() - window_margin, histogram.rows)).dot(Mat(Range::all(), Range(0, 1)))) + rx.back() - window_margin;
-                if (abs(leftx_current.x - rightx_current.x) < 100) 
-                {
-                    l_min_points = (width_sliding_window * 2) * (warp_image_height / num_sliding_window);
-                }
-            }
-        }
-        else if (before_l_detected == true && before_r_detected == false) 
-        {
-            leftx_current = Point2f(max(0, lx.back() - window_margin), Mat(histogram.rowRange(max(0, lx.back() - window_margin), lx.back() + window_margin)).dot(deleteMat(deleteRange::all(), deleteRange(0, 1)))) + max(0, lx.back() - window_margin);
-            rightx_current = Point2f(min(lx.back() + lane_width, histogram.cols - 1), Mat(histogram.rowRange(min(lx.back() + lane_width, histogram.cols - 1), histogram.rows)).dot(Mat(Range::all(), Range(0, 1)))) + min(lx.back() + lane_width, histogram.cols - 1);
-            if (rightx_current.x - leftx_current.x < 100) 
-            {
-                r_min_points = (width_sliding_window * 2) * (warp_image_height / num_sliding_window);
-            }
-        }
-        else if (before_l_detected == false && before_r_detected == false) 
-        {
-            leftx_current = Point2f(0, Mat(histogram.rowRange(0, midpoint)).dot(Mat(Range::all(), Range(0, 1))));
-            rightx_current = Point2f(midpoint, Mat(histogram.rowRange(midpoint, histogram.rows)).dot(Mat(Range::all(), Range(0, 1)))) + midpoint;
-        }
-
-        int window_height = static_cast<int>(lane.rows / num_sliding_window);
-
-        Mat nz;
-        findNonZero(divide_n_lane[window], nz);
-
-        int win_yl = (window + 1) * window_height;
-        int win_yh = window * window_height;
-
-        int win_xll = leftx_current - width_sliding_window;
-        int win_xlh = leftx_current + width_sliding_window;
-        int win_xrl = rightx_current - width_sliding_window;
-        int win_xrh = rightx_current + width_sliding_window;
-
-        Mat nz;
-        findNonZero(dividen_lane[window], nz);
-
-        Mat good_left_inds = ((nz.col(0).row(0) >= 0) & (nz.col(0).row(0) < window_height) & (nz.col(1).row(0) >= win_xll) & (nz.col(1).row(0) < win_xlh));
-        Mat good_right_inds = ((nz.col(0).row(0) >= 0) & (nz.col(0).row(0) < window_height) & (nz.col(1).row(0) >= win_xrl) & (nz.col(1).row(0) < win_xrh));
-
-        vector<int> left_lane_inds, right_lane_inds;
-        for (int i = 0; i < good_left_inds.cols; ++i) 
-        {
-            if (good_left_inds.at<bool>(0, i)) 
-            {
-                left_lane_inds.push_back(nz.at<Point>(0, i).y);
-            }
-        }
-        for (int i = 0; i < good_right_inds.cols; ++i) 
-        {
-            if (good_right_inds.at<bool>(0, i))
-            {
-                right_lane_inds.push_back(nz.at<Point>(0, i).y);
-            }
-        }
-
-        if (good_left_inds.size() > l_min_points) 
-        {
-            leftx_current = static_cast<int>(mean(nz.row(1).col(good_left_inds))[0]);
-            rectangle(out_image, Rect(win_xll, win_yl, win_xlh - win_xll, win_yh - win_yl), Scalar(0, 255, 0), 2);
-            l_box_center.push_back({(win_xll + win_xlh) / 2, (win_yl + win_yh) / 2});
-            before_l_detected = true;
-        } 
-        else before_l_detected = false;
-
-        if (good_right_inds.size() > r_min_points) 
-        {
-            rightx_current = static_cast<int>(mean(nz.row(1).col(good_right_inds))[0]);
-            rectangle(out_image, Rect(win_xrl, win_yl, win_xrh - win_xrl, win_yh - win_yl), Scalar(0, 255, 0), 2);
-            r_box_center.push_back({(win_xrl + win_xrh) / 2, (win_yl + win_yh) / 2});
-            before_r_detected = true;
-        } 
-        else before_r_detected = false;
-
-        lx.push_back(leftx_current);
-        ly.push_back((win_yl + win_yh) / 2);
-        rx.push_back(rightx_current);
-        ry.push_back((win_yl + win_yh) / 2);
-
-        # 10번의 loop가 끝나면 그동안 모은 점들을 저장한다. 
-        left_lane_inds = np.concatenate(left_lane_inds)
-        right_lane_inds = np.concatenate(right_lane_inds)
-
-        # 기존 흰색 차선 픽셀을 왼쪽과 오른쪽 각각 파란색과 빨간색으로 색 변경
-        out_image[(window * window_height) + nz[0][left_lane_inds], nz[1][left_lane_inds]] = [255, 0, 0]
-        out_image[(window * window_height) + nz[0][right_lane_inds], nz[1][right_lane_inds]] = [0, 0, 255]
-
-    # 슬라이딩 윈도우의 중심점(x좌표) 9개를 가지고 2차 함수를 만들어낸다. 
-    # 2차 함수 -> x = ay^2 + by + c
-    lfit = np.polyfit(np.array(ly), np.array(lx), 2)
-    rfit = np.polyfit(np.array(ry), np.array(rx), 2)
-
-    return lfit, rfit, np.mean(lx), np.mean(rx), out_image, l_box_center, r_box_center, lane
-    }
-    */
 };
 
 int main()
