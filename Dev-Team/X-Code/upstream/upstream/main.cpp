@@ -128,6 +128,7 @@ int main()
 	cv::Mat map1, map2;
 	initUndistortRectifyMap(calibrate_mtx, distCoeffs, cv::Mat(), cameraMatrix, image_size, CV_32FC1, map1, map2);
 
+
 	while (true) {
 		capture >> src;
 
@@ -152,7 +153,7 @@ int main()
 		imshow("calibrated image", calibrated_image);
 		imshow("warped image", warped_image);
 		imshow("bin", lane);
-
+        
 		// waitKey(n)의 n값에 따라 동영상의 배속, 감속됨
 		if (cv::waitKey(20) == 27) // ESC
 			break;
