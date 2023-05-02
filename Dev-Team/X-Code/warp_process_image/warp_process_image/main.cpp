@@ -2,7 +2,7 @@
 //  main.cpp
 //  warp_process_image
 //
-//  Created by J on 2023/05/01
+//  Created by J on 2023/05/03
 // 
 
 #include <iostream>
@@ -131,73 +131,125 @@ cv::Mat warp_process_image(cv::Mat image)
         {
             cv::Mat left_histogram = histogram(cv::Range::all(), cv::Range(0, midpoint));
             cv::Mat right_histogram = histogram(cv::Range::all(), cv::Range(midpoint, histogram.cols));
+            // std::cout << "left_histogram: " << left_histogram <<std::endl;
+            // std::cout << "right_histogram: " << right_histogram <<std::endl;
             
+            // minMaxLoc(image, double* minVal, double* maxVal, Point* minLoc, Point* maxLoc, mask = noarray())
             double left_max_val;
             cv::Point left_max_loc;
             cv::minMaxLoc(left_histogram, NULL, &left_max_val, NULL, &left_max_loc);
             int left_current = left_max_loc.x;
             
-            std::cout << "left_current: " <<left_current <<std::endl;
+            // std::cout << "left_current: " << left_current <<std::endl;
             
             double right_max_val;
             cv::Point right_max_loc;
             cv::minMaxLoc(right_histogram, NULL, &right_max_val, NULL, &right_max_loc);
             int right_current = right_max_loc.x;
             
-            std::cout << "right_current: " <<right_current <<std::endl;
+            // std::cout << "right_current: " << right_current <<std::endl;
         }
         
+        // ? -> 충돌 에러 O
         // 이전 window에서 차선을 둘 다 인식한 경우
         else if (before_l_detected == true && before_r_detected == true)
         {
-            // C++ 변환
-            leftx_current = np.argmax(histogram[max(0, lx[-1] - window_margin): lx[-1] + window_margin]) + max(0, lx[-1] - window_margin)
-            rightx_current = np.argmax(histogram[rx[-1] - window_margin : min(histogram.shape[0] - 1, rx[-1] + window_margin)]) + rx[-1] - window_margin
+            cv::Mat left_histogram = histogram(cv::Range::all(), cv::Range(std::max(0, lx.back() - window_margin), lx.back() + window_margin)
+                                        + std::max(0, lx.back() - window_margin));
+            cv::Mat right_histogram = histogram(cv::Range::all(), cv::Range(rx.back() - window_margin, std::min(histogram.size[0] - 1, rx.back() + window_margin)) 
+                                        + rx.back() - window_margin);
+            
+            // std::cout << "left_histogram: " << left_histogram <<std::endl;
+            // std::cout << "right_histogram: " << right_histogram <<std::endl;
+
+            double left_max_val;
+            cv::Point left_max_loc;
+            cv::minMaxLoc(left_histogram, NULL, &left_max_val, NULL, &left_max_loc);
+            int left_current = left_max_loc.x;
+
+            // std::cout << "left_current: " << left_current <<std::endl;
+
+            double right_max_val;
+            cv::Point right_max_loc;
+            cv::minMaxLoc(right_histogram, NULL, &right_max_val, NULL, &right_max_loc);
+            int right_current = right_max_loc.x;
+
+            // std::cout << "right_current: " << right_current <<std::endl;
         }
         
+        // ? -> 문법 오류 X, cout X
         // 이전 window에서 왼쪽 차선 인식 X, 오른쪽 차선만 인식 O한 경우
         else if (before_l_detected == false && before_r_detected == true)
         {
             if (rx[rx.size() - 1] - lane_width > 0)
             // if (rx.back() - lane_width > 0)
             {
-                // C++ 변환
-                leftx_current = np.argmax(histogram[:rx[-1] - lane_width])
-            }
+                cv::Mat left_histogram = histogram(cv::Range::all(), cv::Range(0, rx.back() - lane_width));
 
+                // std::cout << "left_histogram: " << left_histogram <<std::endl;
+
+                double left_max_val;
+                cv::Point left_max_loc;
+                cv::minMaxLoc(left_histogram, NULL, &left_max_val, NULL, &left_max_loc);
+                int left_current = left_max_loc.x;
+
+                // std::cout << "left_current: " << left_current <<std::endl;
+            }
             else
             {
-                leftx_current = None
+                // ? -> None X, nullptr or NULL
+                int leftx_current = NULL;
             }
         }
         
         // 이전 window에서 왼쪽 차선은 인식 O, 오른쪽 차선은 인식 X한 경우
         else if (before_l_detected == true && before_r_detected == false)
         {
-            // C++ 변환
-            leftx_current = np.argmax(histogram[max(0, lx[-1] - window_margin) : lx[-1] + window_margin]) + max(0, lx[-1] - window_margin)
+            cv::Mat left_histogram = histogram(cv::Range::all(), cv::Range(std::max(0, lx.back() - window_margin), lx.back() + window_margin)
+                                        + std::max(0, lx.back() - window_margin));
             
-            if (lx[lx.size() - 1] + lane_width < histogram.shape()[0])
+            double left_max_val;
+            cv::Point left_max_loc;
+            cv::minMaxLoc(left_histogram, NULL, &left_max_val, NULL, &left_max_loc);
+            int left_current = left_max_loc.x;
+            
+            if (lx[lx.size() - 1] + lane_width < histogram.size[0])
             // if (lx.back() + lane_width < histogram.size())
             {
-                // C++ 변환
-                rightx_current = np.argmax(histogram[lx[-1] + lane_width:]) + lx[-1] + lane_width
+                cv::Mat right_histogram = histogram(cv::Range::all(), cv::Range(rx.back() + lane_width, histogram.cols)) + (lx.back() + lane_width);
             }
             else
             {
-                rightx_current = None
+                // ? -> None X, nullptr or NULL
+                int rightx_current = NULL;
             }
         }
         
         // 이전 window에서 차선을 둘 다 인식하지 못한 경우
         else if (before_l_detected == false && before_r_detected == false)
         {
-            // C++ 변환
-            leftx_current = min
-            leftx_current = np.argmax(histogram[:midpoint])
-            rightx_current = np.argmax(histogram[midpoint:]) + midpoint
+            cv::Mat left_histogram = histogram(cv::Range::all(), cv::Range(0, midpoint));
+            cv::Mat right_histogram = histogram(cv::Range::all(), cv::Range(midpoint, histogram.cols));
+            // std::cout << "left_histogram: " << left_histogram <<std::endl;
+            // std::cout << "right_histogram: " << right_histogram <<std::endl;
+            
+            // minMaxLoc(image, double* minVal, double* maxVal, Point* minLoc, Point* maxLoc, mask = noarray())
+            double left_max_val;
+            cv::Point left_max_loc;
+            cv::minMaxLoc(left_histogram, NULL, &left_max_val, NULL, &left_max_loc);
+            int left_current = left_max_loc.x;
+            
+            // std::cout << "left_current: " << left_current <<std::endl;
+            
+            double right_max_val;
+            cv::Point right_max_loc;
+            cv::minMaxLoc(right_histogram, NULL, &right_max_val, NULL, &right_max_loc);
+            int right_current = right_max_loc.x;
+            
+            // std::cout << "right_current: " << right_current <<std::endl;
         }
         
+        /*
         int window_height = static_cast<int>(lane.rows / num_sliding_window);
         
         cv::Mat nz;
@@ -269,6 +321,7 @@ cv::Mat warp_process_image(cv::Mat image)
         // C++ 변환
         lfit = np.polyfit(np.array(ly), np.array(lx), 2)
         rfit = np.polyfit(np.array(ry), np.array(rx), 2)
+        */
     }
     return lane;
     // return lfit, rfit, np.mean(lx), np.mean(rx), out_image, l_box_center, r_box_center, lane
