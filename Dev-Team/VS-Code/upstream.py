@@ -242,12 +242,12 @@ def warp_process_image(image):
         # 이전 window에서 왼쪽 차선은 인식 O, 오른쪽 차선은 인식 X한 경우 
         # 이전 window에서 차선을 하나만 인식했을 때, 있던 차선은 margin값 이내에서, 다른 차선은 lane width만큼 이동 후 찾아낸다. 
         elif before_l_detected == True and before_r_detected == False:   
-            leftx_current = np.argmax(histogram[max(0, lx[-1] - window_margin) : lx[-1] + window_margin]) + max(0, lx[-1] - window_margin)
-
             if lx[-1] + lane_width < histogram.shape[0]:
                 rightx_current = np.argmax(histogram[lx[-1] + lane_width:]) + lx[-1] + lane_width
             else:
                 rightx_current = None
+
+            leftx_current = np.argmax(histogram[max(0, lx[-1] - window_margin) : lx[-1] + window_margin]) + max(0, lx[-1] - window_margin)
 
         # 이전 window에서 차선을 둘 다 인식하지 못한 경우 
         elif before_l_detected == False and before_r_detected == False:
@@ -299,7 +299,6 @@ def warp_process_image(image):
                 
                 # 다음 window에서 차선을 인식 했음을 알린다. 
                 before_r_detected = True
-            
             else:
                 before_r_detected = False
 
@@ -312,8 +311,7 @@ def warp_process_image(image):
             right_lane_inds = np.concatenate(right_lane_inds)
 
             # 기존 흰색 차선 픽셀을 왼쪽과 오른쪽 각각 파란색과 빨간색으로 색 변경
-            out_image[(window * window_height) + nz[0][right_lane_inds], nz[1][right_lane_inds]] = [0, 0, 255]
-        
+            out_image[(window * window_height) + nz[0][right_lane_inds], nz[1][right_lane_inds]] = [0, 0, 255]      
         else:
             before_r_detected = False
 
