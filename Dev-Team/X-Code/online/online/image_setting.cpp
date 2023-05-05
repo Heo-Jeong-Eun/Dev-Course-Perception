@@ -1,15 +1,9 @@
-//
 //  image_setting.cpp
-//  online
-//
-//  Created by J on 2023/05/03.
-//
 
 #include "opencv2/opencv.hpp"
 #include "image_setting.h"
 
-double calibrate_mtx_data[9] =
-{
+double calibrate_mtx_data[9] = {
     350.354184, 0.0, 328.104147,
     0.0, 350.652653, 236.540676,
     0.0, 0.0, 1.0

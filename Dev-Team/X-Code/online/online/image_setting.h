@@ -1,9 +1,4 @@
-//
 //  image_setting.h
-//  online
-//
-//  Created by J on 2023/05/03.
-//
 
 #include "opencv2/opencv.hpp"
 #include "sliding_window.h"
@@ -28,7 +23,6 @@ class image_setting
         {
             cv::initUndistortRectifyMap(calibrate_mtx, distCoeffs, cv::Mat(), cameraMatrix, image_size, CV_32FC1, map1, map2);
         }
-
         ~image_setting()
         {
 
