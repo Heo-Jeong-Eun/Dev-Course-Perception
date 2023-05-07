@@ -1,0 +1,474 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		770FD4F92A07ACCF00D7A5CB /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 770FD4F82A07ACCF00D7A5CB /* main.cpp */; };
+		770FD50A2A07B3A300D7A5CB /* HoughTransformLaneDetector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 770FD5092A07B3A300D7A5CB /* HoughTransformLaneDetector.cpp */; };
+		770FD50C2A07B3BF00D7A5CB /* LaneKeepingSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 770FD50B2A07B3BF00D7A5CB /* LaneKeepingSystem.cpp */; };
+		770FD50E2A07B3DA00D7A5CB /* MovingAverageFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 770FD50D2A07B3DA00D7A5CB /* MovingAverageFilter.cpp */; };
+		770FD5102A07B3F300D7A5CB /* PIDController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 770FD50F2A07B3F300D7A5CB /* PIDController.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		770FD4F32A07ACCF00D7A5CB /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		770FD4F52A07ACCF00D7A5CB /* offline */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = offline; sourceTree = BUILT_PRODUCTS_DIR; };
+		770FD4F82A07ACCF00D7A5CB /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		770FD5042A07B1DA00D7A5CB /* HoughTransformLaneDetector.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = HoughTransformLaneDetector.hpp; sourceTree = "<group>"; };
+		770FD5052A07B2F000D7A5CB /* LaneKeepingSystem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LaneKeepingSystem.hpp; sourceTree = "<group>"; };
+		770FD5062A07B30900D7A5CB /* MovingAverageFilter.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MovingAverageFilter.hpp; sourceTree = "<group>"; };
+		770FD5072A07B32700D7A5CB /* PIDController.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PIDController.hpp; sourceTree = "<group>"; };
+		770FD5092A07B3A300D7A5CB /* HoughTransformLaneDetector.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HoughTransformLaneDetector.cpp; sourceTree = "<group>"; };
+		770FD50B2A07B3BF00D7A5CB /* LaneKeepingSystem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LaneKeepingSystem.cpp; sourceTree = "<group>"; };
+		770FD50D2A07B3DA00D7A5CB /* MovingAverageFilter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MovingAverageFilter.cpp; sourceTree = "<group>"; };
+		770FD50F2A07B3F300D7A5CB /* PIDController.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PIDController.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		770FD4F22A07ACCF00D7A5CB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		770FD4EC2A07ACCF00D7A5CB = {
+			isa = PBXGroup;
+			children = (
+				770FD4F72A07ACCF00D7A5CB /* offline */,
+				770FD4F62A07ACCF00D7A5CB /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		770FD4F62A07ACCF00D7A5CB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				770FD4F52A07ACCF00D7A5CB /* offline */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		770FD4F72A07ACCF00D7A5CB /* offline */ = {
+			isa = PBXGroup;
+			children = (
+				770FD4FF2A07AE1900D7A5CB /* config */,
+				770FD5002A07AE2000D7A5CB /* include */,
+				770FD5012A07AE2800D7A5CB /* launch */,
+				770FD5022A07AE2F00D7A5CB /* src */,
+			);
+			path = offline;
+			sourceTree = "<group>";
+		};
+		770FD4FF2A07AE1900D7A5CB /* config */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = config;
+			sourceTree = "<group>";
+		};
+		770FD5002A07AE2000D7A5CB /* include */ = {
+			isa = PBXGroup;
+			children = (
+				770FD5032A07B1B200D7A5CB /* LaneKeepingSystem */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		770FD5012A07AE2800D7A5CB /* launch */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = launch;
+			sourceTree = "<group>";
+		};
+		770FD5022A07AE2F00D7A5CB /* src */ = {
+			isa = PBXGroup;
+			children = (
+				770FD5082A07B36900D7A5CB /* LaneKeepingSystem */,
+				770FD4F82A07ACCF00D7A5CB /* main.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		770FD5032A07B1B200D7A5CB /* LaneKeepingSystem */ = {
+			isa = PBXGroup;
+			children = (
+				770FD5042A07B1DA00D7A5CB /* HoughTransformLaneDetector.hpp */,
+				770FD5052A07B2F000D7A5CB /* LaneKeepingSystem.hpp */,
+				770FD5062A07B30900D7A5CB /* MovingAverageFilter.hpp */,
+				770FD5072A07B32700D7A5CB /* PIDController.hpp */,
+			);
+			path = LaneKeepingSystem;
+			sourceTree = "<group>";
+		};
+		770FD5082A07B36900D7A5CB /* LaneKeepingSystem */ = {
+			isa = PBXGroup;
+			children = (
+				770FD5092A07B3A300D7A5CB /* HoughTransformLaneDetector.cpp */,
+				770FD50B2A07B3BF00D7A5CB /* LaneKeepingSystem.cpp */,
+				770FD50D2A07B3DA00D7A5CB /* MovingAverageFilter.cpp */,
+				770FD50F2A07B3F300D7A5CB /* PIDController.cpp */,
+			);
+			path = LaneKeepingSystem;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		770FD4F42A07ACCF00D7A5CB /* offline */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 770FD4FC2A07ACCF00D7A5CB /* Build configuration list for PBXNativeTarget "offline" */;
+			buildPhases = (
+				770FD4F12A07ACCF00D7A5CB /* Sources */,
+				770FD4F22A07ACCF00D7A5CB /* Frameworks */,
+				770FD4F32A07ACCF00D7A5CB /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = offline;
+			productName = offline;
+			productReference = 770FD4F52A07ACCF00D7A5CB /* offline */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		770FD4ED2A07ACCF00D7A5CB /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					770FD4F42A07ACCF00D7A5CB = {
+						CreatedOnToolsVersion = 14.3;
+					};
+				};
+			};
+			buildConfigurationList = 770FD4F02A07ACCF00D7A5CB /* Build configuration list for PBXProject "offline" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 770FD4EC2A07ACCF00D7A5CB;
+			productRefGroup = 770FD4F62A07ACCF00D7A5CB /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				770FD4F42A07ACCF00D7A5CB /* offline */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		770FD4F12A07ACCF00D7A5CB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				770FD50A2A07B3A300D7A5CB /* HoughTransformLaneDetector.cpp in Sources */,
+				770FD50E2A07B3DA00D7A5CB /* MovingAverageFilter.cpp in Sources */,
+				770FD5102A07B3F300D7A5CB /* PIDController.cpp in Sources */,
+				770FD50C2A07B3BF00D7A5CB /* LaneKeepingSystem.cpp in Sources */,
+				770FD4F92A07ACCF00D7A5CB /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		770FD4FA2A07ACCF00D7A5CB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		770FD4FB2A07ACCF00D7A5CB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		770FD4FD2A07ACCF00D7A5CB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = "/usr/local/Cellar/opencv/4.7.0_3/include/opencv4/**";
+				LIBRARY_SEARCH_PATHS = "/usr/local/Cellar/opencv/4.7.0_3/lib/**";
+				OTHER_LDFLAGS = (
+					"-I/usr/local/opt/opencv/include/opencv4",
+					"-L/usr/local/opt/opencv/lib",
+					"-lopencv_gapi",
+					"-lopencv_stitching",
+					"-lopencv_alphamat",
+					"-lopencv_aruco",
+					"-lopencv_barcode",
+					"-lopencv_bgsegm",
+					"-lopencv_bioinspired",
+					"-lopencv_ccalib",
+					"-lopencv_dnn_objdetect",
+					"-lopencv_dnn_superres",
+					"-lopencv_dpm",
+					"-lopencv_face",
+					"-lopencv_freetype",
+					"-lopencv_fuzzy",
+					"-lopencv_hfs",
+					"-lopencv_img_hash",
+					"-lopencv_intensity_transform",
+					"-lopencv_line_descriptor",
+					"-lopencv_mcc",
+					"-lopencv_quality",
+					"-lopencv_rapid",
+					"-lopencv_reg",
+					"-lopencv_rgbd",
+					"-lopencv_saliency",
+					"-lopencv_sfm",
+					"-lopencv_stereo",
+					"-lopencv_structured_light",
+					"-lopencv_phase_unwrapping",
+					"-lopencv_superres",
+					"-lopencv_optflow",
+					"-lopencv_surface_matching",
+					"-lopencv_tracking",
+					"-lopencv_highgui",
+					"-lopencv_datasets",
+					"-lopencv_text",
+					"-lopencv_plot",
+					"-lopencv_videostab",
+					"-lopencv_videoio",
+					"-lopencv_viz",
+					"-lopencv_wechat_qrcode",
+					"-lopencv_xfeatures2d",
+					"-lopencv_shape",
+					"-lopencv_ml",
+					"-lopencv_ximgproc",
+					"-lopencv_video",
+					"-lopencv_xobjdetect",
+					"-lopencv_objdetect",
+					"-lopencv_calib3d",
+					"-lopencv_imgcodecs",
+					"-lopencv_features2d",
+					"-lopencv_dnn",
+					"-lopencv_flann",
+					"-lopencv_xphoto",
+					"-lopencv_photo",
+					"-lopencv_imgproc",
+					"-lopencv_core",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		770FD4FE2A07ACCF00D7A5CB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = "/usr/local/Cellar/opencv/4.7.0_3/include/opencv4/**";
+				LIBRARY_SEARCH_PATHS = "/usr/local/Cellar/opencv/4.7.0_3/lib/**";
+				OTHER_LDFLAGS = (
+					"-I/usr/local/opt/opencv/include/opencv4",
+					"-L/usr/local/opt/opencv/lib",
+					"-lopencv_gapi",
+					"-lopencv_stitching",
+					"-lopencv_alphamat",
+					"-lopencv_aruco",
+					"-lopencv_barcode",
+					"-lopencv_bgsegm",
+					"-lopencv_bioinspired",
+					"-lopencv_ccalib",
+					"-lopencv_dnn_objdetect",
+					"-lopencv_dnn_superres",
+					"-lopencv_dpm",
+					"-lopencv_face",
+					"-lopencv_freetype",
+					"-lopencv_fuzzy",
+					"-lopencv_hfs",
+					"-lopencv_img_hash",
+					"-lopencv_intensity_transform",
+					"-lopencv_line_descriptor",
+					"-lopencv_mcc",
+					"-lopencv_quality",
+					"-lopencv_rapid",
+					"-lopencv_reg",
+					"-lopencv_rgbd",
+					"-lopencv_saliency",
+					"-lopencv_sfm",
+					"-lopencv_stereo",
+					"-lopencv_structured_light",
+					"-lopencv_phase_unwrapping",
+					"-lopencv_superres",
+					"-lopencv_optflow",
+					"-lopencv_surface_matching",
+					"-lopencv_tracking",
+					"-lopencv_highgui",
+					"-lopencv_datasets",
+					"-lopencv_text",
+					"-lopencv_plot",
+					"-lopencv_videostab",
+					"-lopencv_videoio",
+					"-lopencv_viz",
+					"-lopencv_wechat_qrcode",
+					"-lopencv_xfeatures2d",
+					"-lopencv_shape",
+					"-lopencv_ml",
+					"-lopencv_ximgproc",
+					"-lopencv_video",
+					"-lopencv_xobjdetect",
+					"-lopencv_objdetect",
+					"-lopencv_calib3d",
+					"-lopencv_imgcodecs",
+					"-lopencv_features2d",
+					"-lopencv_dnn",
+					"-lopencv_flann",
+					"-lopencv_xphoto",
+					"-lopencv_photo",
+					"-lopencv_imgproc",
+					"-lopencv_core",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		770FD4F02A07ACCF00D7A5CB /* Build configuration list for PBXProject "offline" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				770FD4FA2A07ACCF00D7A5CB /* Debug */,
+				770FD4FB2A07ACCF00D7A5CB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		770FD4FC2A07ACCF00D7A5CB /* Build configuration list for PBXNativeTarget "offline" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				770FD4FD2A07ACCF00D7A5CB /* Debug */,
+				770FD4FE2A07ACCF00D7A5CB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 770FD4ED2A07ACCF00D7A5CB /* Project object */;
+}
