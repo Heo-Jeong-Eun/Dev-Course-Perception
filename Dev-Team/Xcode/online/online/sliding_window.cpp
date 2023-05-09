@@ -114,24 +114,6 @@ cv::Mat SlidingWindow::binary_image_with_adaptivethreshold(cv::Mat image)
     return lane;
 }
 
-cv::Mat SlidingWindow::binary_image_with_threshold(cv::Mat image)
-{
-    int lane_bin_th = 170;
-
-    cv::Mat blur;
-    GaussianBlur(image, blur, cv::Size(5, 5), 0);
-
-    cv::Mat hls;
-    cvtColor(blur, hls, cv::COLOR_BGR2HLS);
-    std::vector<cv::Mat> L;
-    split(hls, L);
-
-    cv::Mat lane;
-    threshold(L[1], lane, lane_bin_th, 255, cv::THRESH_BINARY_INV);
-
-    return lane;
-}
-
 cv::Mat SlidingWindow::contrast_clihe(cv::Mat image)
 {
     cv::Ptr<cv::CLAHE>clahe = cv::createCLAHE(0.2, cv::Size(8, 8));
@@ -182,7 +164,6 @@ cv::Mat SlidingWindow::draw_sliding_window(cv::Mat image, int frame)
 
     cv::Mat out_img;
     cv::cvtColor(image, out_img, cv::COLOR_GRAY2BGR);
-
 
     // 자른 window 갯수만큼 for loop
     for (int i = num_SlidingWindow - 1; i >= 0; i--)
@@ -333,7 +314,6 @@ cv::Mat SlidingWindow::draw_sliding_window(cv::Mat image, int frame)
             left_histogram_start = 0;
         }
 
-        
         int win_yl = (i + 1) * window_height;
         int win_yh = i * window_height;
 
