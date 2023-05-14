@@ -95,7 +95,7 @@ public:
      * @return Return frame for debuging
      */
     const cv::Mat& getDebugFrame() const { return mDebugFrame; };
-    // const cv::Mat& getCannyFrame() const { return  cannyFrame; };
+    // const cv::Mat& getCannyFrame() const { return  mCannyFrame; };
 
 private:
     /**
@@ -157,7 +157,7 @@ private:
 
     // Debug Image and flag
     cv::Mat mDebugFrame; ///< The frame for debugging
-    cv::Mat cannyFrame; ///< Canny Edge image
+    cv::Mat mCannyFrame; ///< Canny Edge image
     bool mDebugging;     ///< Debugging or not
 };
 } // namespace Xycar
