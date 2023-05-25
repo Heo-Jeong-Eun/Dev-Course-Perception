@@ -38,13 +38,14 @@ def sumsub_tensor():
     print("sub : {}".format(sub))
     
     sum_all_a, sum_all_b = a.sum(), b.sum()
-    print("sum")
+    print("sum a :", sum_all_a)
+    print("sum b :", sum_all_b)
 
 def mul_div():
     a = torch.arange(0,9).view(3,3)
     b = torch.arange(0,9).view(3,3)
 
-    print("input a : {} \n input b : {}".format(a, b))
+    print("input a : \n {} input b : \n {}".format(a, b))
     
     # matrix_multiplication
     c = torch.matmul(a,b)
@@ -52,30 +53,31 @@ def mul_div():
     # elementwise multiplication
     d = torch.mul(a,b)
     
-    print("multiplication : {}".format(c))
-    print("elementwise multiplication : {}".format(d))
+    print("multiplication : \n {}".format(c))
+    print("elementwise multiplication : \n {}".format(d))
 
 def reshape_tensor():
     a = torch.tensor([2.5,5.6,9.1,4.6,3.2,6.5])
 
-    # reshape 1d to 2d
+    # reshape 1d to 2d, view
     b = a.view(2,3)
-    print("1D tensor : {} -> reshaped 2D tensor : {}".format(a, b))
+    print("1D tensor : \n {} \n -> reshaped 2D tensor : \n {}".format(a, b))
     
-    # transpose
+    # transpose 
     b_t = b.t()
+    print("transpose : \n {}".format(b_t))
 
     c = torch.randn(2,2)
-    print("rand tensor : {}".format(c))
-
+    print("rand tensor : \n {}".format(c))
+ 
     d1 = torch.arange(0,8)
     d2 = d1.view(2,4)
-    print("1D tensor : {} -> reshaped 2D tensor : {}".format(d1, d2))
+    print("1D tensor : \n {} \n -> reshaped \n 2D tensor : \n {}".format(d1, d2))
 
 def access_tensor():
     a = torch.arange(1,13).view(4,3)
 
-    print("tensor : {}".format(a))
+    print("tensor : \n {}".format(a))
 
     # first column (slicing)
     b = a[:,0]
@@ -92,13 +94,13 @@ def transform_numpy():
 
     a_np = a.numpy()
 
-    print("tensor : {} => numpy : {}".format(a, a_np))
+    print("tensor : \n {} \n -> numpy : \n {}".format(a, a_np))
 
     b = np.array([1,2,4])
 
     b_tensor = torch.from_numpy(b)
 
-    print("tensor : {} => numpy : {}".format(b, b_tensor))
+    print("tensor : \n {} \n -> numpy : \n {}".format(b, b_tensor))
 
 def concat_tensor():
     a = torch.arange(1,10).view(3,3)
@@ -118,25 +120,25 @@ def stack_tensor():
     abc = torch.stack([a,b,c],dim=0)
 
     print(a, b, c)
-    print("stack : {}".format(abc))
+    print("stack : \n {}".format(abc))
 
 def transpose_tensor():
     a = torch.arange(1,10).view(3,3)
-    print("a tensor : {}".format(a))
+    print("a tensor : \n {}".format(a))
     
     a_t = torch.transpose(a,0,1)
     
-    print("a transposed : {}".format(a_t))
+    print("a transposed : \n {}".format(a_t))
     
     b = torch.arange(1,25).view(4,3,2)
     
-    print("b tensor : {}".format(b))
+    print("b tensor : \n {}".format(b))
     
     b_t = torch.transpose(b,0,2)
-    print("b transposed : {}".format(b_t))
+    print("b transposed : \n {}".format(b_t))
     
     b_p = b.permute(2,0,1)
-    print("b permute : {}".format(b_p))
+    print("b permute : \n {}".format(b_p))
     
 if __name__ == "__main__":
     make_tensor()
