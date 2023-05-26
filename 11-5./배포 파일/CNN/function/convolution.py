@@ -22,17 +22,17 @@ class Conv:
     def check_range(self, a, b):
         return a > -1 and a < b
 
-    #naive convolution. Sliding window metric
+    # naive convolution. Sliding window metric
     def conv(self, A, B):
         C = np.zeros((self.batch, self.out_c, self.out_h, self.out_w), dtype=np.float32)
         
-        #seven loop
+        # seven loop
         for b in range(self.batch):
             for oc in range(self.out_c):
-                #each channel of output
+                # each channel of output
                 for oh in range(self.out_h):
                     for ow in range(self.out_w):
-                        #each pixel of output shape
+                        # each pixel of output shape
                         a_j = oh * self.stride - self.pad
                         for kh in range(self.k_h):
                             if self.check_range(a_j, self.in_h) == False:
@@ -49,9 +49,9 @@ class Conv:
         return C
     
 
-    #IM2COL. Change n-dim input to 2-dim matrix
+    # IM2COL. Change n-dim input to 2-dim matrix
     def im2col(self, A):
-        #output
+        # output
         mat = np.zeros((self.in_c * self.k_h * self.k_w, self.out_w * self.out_h), dtype=np.float32)
         
         mat_j = 0
@@ -80,7 +80,7 @@ class Conv:
                     mat_j += 1
         return mat
     
-    #gemm. 2D matrix multiplication
+    # gemm. 2D matrix multiplication
     def gemm(self, A, B):
         a_mat = self.im2col(A)
         b_mat = B.reshape(B.shape[0],-1)

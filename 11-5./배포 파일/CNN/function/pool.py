@@ -1,6 +1,6 @@
 import numpy as np
 
-#2D pooling
+# 2D pooling
 class Pool:
     def __init__(self, batch, in_c, out_c, in_h, in_w, kernel, dilation, stride, pad):
         self.batch = batch

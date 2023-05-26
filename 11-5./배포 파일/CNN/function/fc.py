@@ -9,7 +9,7 @@ class FC:
         self.in_w = in_w 
         
     def fc(self, A, W):
-        #A shape : [b,in_c, in_h, in_w]
+        # A shape : [b,in_c, in_h, in_w]
         a_mat = A.reshape([self.batch, -1])
         B = np.dot(a_mat, np.transpose(W, (1,0)))
         return B
