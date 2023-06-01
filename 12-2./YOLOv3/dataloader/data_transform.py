@@ -3,7 +3,7 @@ import torch
 from torchvision import transforms as tf
 
 import imgaug as ia
-from imgaug import augmentation as iaa
+from imgaug import augmenters as iaa
 from imgaug.augmentables.bbs import BoundingBox, BoundingBoxesOnImage
 
 import cv2

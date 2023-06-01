@@ -29,7 +29,7 @@ def parse_hyperparam_config(path):
             if type_name != 'net':
                 continue
     
-            key, value = lines.split('=')
+            key, value = line.split('=')
             value = value.strip()
             module_defs[-1][key.rstrip()] = value.strip()
     
@@ -39,19 +39,19 @@ def get_hyperparam(data):
     for d in data:
         if d['type'] == 'net':
             batch = int(d['batch'])
-            subdivision = int(d['subdivision'])
+            subdivision = int(d['subdivisions'])
             momentum = float(d['momentum'])
             decay = float(d['decay'])
             saturation = float(d['saturation'])
-            lr = float(d['learning rate'])
-            burn_in = float(d['burn in'])
-            max_batch = int(d['max batch'])
+            lr = float(d['learning_rate'])
+            burn_in = float(d['burn_in'])
+            max_batch = int(d['max_batches'])
             lr_policy = d['policy']
             in_width = int(d['width'])
             in_height = int(d['height'])
-            in_channels = int(d['channel'])
+            in_channels = int(d['channels'])
             classes = int(d['class'])
-            ignore_class = int(d['ignore cls'])
+            ignore_class = int(d['ignore_cls'])
 
             return {'batch' : batch,
                     'subdivision' : subdivision,
@@ -84,7 +84,7 @@ def drawBox(image):
     image = image * 255
 
     print(image.shape)
-    
+
     # if image.shape[0] == 3:
     #     image_data = np.array(np.transpose(image, (1, 2, 0)), dtype = np.uint8)
     #     image_data = Image.fromarray(image_data)

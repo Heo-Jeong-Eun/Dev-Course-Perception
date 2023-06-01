@@ -13,11 +13,11 @@ class Yolodata(Dataset):
     file_txt = ''
 
     # train dataset path
-    train_dir = ''
+    train_dir = '/Users/1001l1000/Documents/Dev-Course/12-2./KITTI/training'
     train_txt = 'train.txt'
 
     # eval dataset path 
-    valid_dir = ''
+    valid_dir = '/Users/1001l1000/Documents/Dev-Course/12-2./KITTI/eval'
     valid_txt = 'eval.txt'
 
     class_str = ['Car', 'Num', 'Truck', 'Pedestrian', 'Person_sitting', 'Cyclist', 'Tram', 'Misc']
@@ -28,16 +28,16 @@ class Yolodata(Dataset):
         super(Yolodata, self).__init__()
         self.is_train = is_train
         self.transform = transform
-        self.num_class = cfg_param['class']
+        self.num_class = cfg_param['classes']
 
         if self.is_train:
-            self.file_dir = self.train_dir + 'Images'
-            self.anno_dir = self.train_dir + 'Annotations'
-            self.file_txt = self.train_dir + 'Image Search' + self.train_txt
+            self.file_dir = self.train_dir + '//JPEG images//'
+            self.anno_dir = self.train_dir + '//annotations//'
+            self.file_txt = self.train_dir + '//image sets//' + self.train_txt
         else:
-            self.file_dir = self.valid_dir + 'JPEG Images'
-            self.anno_dir = self.valid_dir + 'Annotations'
-            self.file_txt = self.valid_dir + 'Image Search' + self.valid_txt
+            self.file_dir = self.valid_dir + '//JPEG images//'
+            self.anno_dir = self.valid_dir + '//annotations//'
+            self.file_txt = self.valid_dir + '//image sets//' + self.valid_txt
 
         img_names = []
         img_data = []
@@ -138,4 +138,3 @@ class Yolodata(Dataset):
         
     def __len__(self):
         return len(self.img_data)
-
