@@ -5,6 +5,7 @@ import os, sys
 from torch.utils.data.dataloader import DataLoader
 from utils.tools import *
 from dataloader.yolodata import *
+from dataloader.data_transform import *
 
 def parse_args():
     parser = argparse.ArgumentParser(description = 'YOLOv3 PyTorch Arguments')
@@ -25,9 +26,11 @@ def parse_args():
 def train(cfg_param = None, using_gpus = None):
     print('train')
 
-    # data loader
+    my_transform = get_transformations(cfg_param = cfg_param, is_train = True)
+
+    # data loader 6081 images / batch = 4
     train_data = Yolodata(is_train = True, 
-                        transform = None, 
+                        transform = my_transform, 
                         cfg_param = cfg_param)
     
     train_loader = DataLoader(train_data,
@@ -44,6 +47,9 @@ def train(cfg_param = None, using_gpus = None):
         
         # print(i, len(batch))
         # print(batch)
+
+        # image 출력
+        drawBox(img[0].detach().cpu())
                               
 def eval(cfg_param = None, using_gpus = None):
     print('eval')

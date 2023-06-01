@@ -1,3 +1,8 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+from PIL import Image, ImageDraw
+
 # parse the YOLOv3 configuration
 def parse_hyperparam_config(path):
     file = open(path, 'r')
@@ -64,3 +69,30 @@ def get_hyperparam(data):
                     'ignore_class' : ignore_class}
         else:
             continue
+
+def xywh2xyxy_np(x : np.array):
+    # y = result
+    y = np.zeros_like(x)
+    y[..., 0] = x[..., 0] - x[..., 2] / 2 # minx
+    y[..., 1] = x[..., 1] - x[..., 3] / 2 # miny
+    y[..., 2] = x[..., 0] + x[..., 2] / 2 # maxx
+    y[..., 3] = x[..., 1] + x[..., 3] / 2 # maxy
+
+    return y
+
+def drawBox(image):
+    image = image * 255
+
+    print(image.shape)
+    
+    # if image.shape[0] == 3:
+    #     image_data = np.array(np.transpose(image, (1, 2, 0)), dtype = np.uint8)
+    #     image_data = Image.fromarray(image_data)
+
+    image_data = np.array(np.transpose(image, (1, 2, 0)), dtype = np.uint8)
+    image_data = Image.fromarray(image_data)
+
+    # draw = ImageDraw.Draw(image_data)
+
+    plt.imshow(image_data)
+    plt.show()
