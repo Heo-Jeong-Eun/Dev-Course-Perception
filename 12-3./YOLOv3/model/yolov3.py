@@ -40,15 +40,15 @@ def make_upsample_layer(layer_idx : int, modules : nn.Module, layer_info : dict)
 class Yololayer(nn.Module):
     def __init__(self, layer_info : dict, in_width : int, in_height : int, is_train : bool):
         super(Yololayer, self).__init__()
-        self.n_classes = int(layer_info.get['classes'])
+        self.n_classes = int(layer_info['classes'])
         self.ignore_thresh = float(layer_info['ignore_thresh'])
         self.box_attr = self.n_classes + 5 # box[4] + objectness[1] + class_prob[n_classes]
         # 9개의 anchor에서 어떤 mask index를 사용할 것인가 
         # 각각의 layer에서 다 사용하는 것이 아니고, mask index의 값만큼 사용한다. 
         mask_idxes = [int(x) for x in layer_info['mask'].split(',')]
         anchor_all = [int(x) for x in layer_info['anchors'].split(',')]
-        anchor_all = [(anchor_all[i], anchor_all[i + 1]) for i in range(0, len(anchor_all, 2))]
-        self.anchor = torch.tensor(anchor_all[x] for x in mask_idxes)
+        anchor_all = [(anchor_all[i], anchor_all[i + 1]) for i in range(0, len(anchor_all), 2)]
+        self.anchor = torch.tensor([anchor_all[x] for x in mask_idxes])
         self.in_width = in_width
         self.in_height = in_height
         # 각각 yolo layer마다 stride, lw, lh 값이 달라진다. 
@@ -67,10 +67,9 @@ class Yololayer(nn.Module):
         self.stride = torch.tensor([torch.div(self.in_width, self.lw, rounding_mode = 'floor'),
                                     torch.div(self.in_height, self.lh, rounding_mode = 'floor')]).to(x.device)
 
-
 # 일반적으로 model을 만들 때, nn.Moudule을 상속받아 사용하게 된다. 
 class DarkNet53(nn.Module):
-    def __init__(self, cfg, param):
+    def __init__(self, cfg, param, training):
         super().__init__()
         self.batch = int(param['batch'])
         self.in_channels = int(param['in_channels'])
@@ -79,6 +78,7 @@ class DarkNet53(nn.Module):
         self.n_classes = int(param['classes'])
         self.module_cfg = parse_model_config(cfg)
         self.module_list = self.set_layer(self.module_cfg)
+        self.training = training
 
     def set_layer(self, layer_info):
         module_list = nn.ModuleList()
@@ -88,7 +88,7 @@ class DarkNet53(nn.Module):
             modules = nn.Sequential()
             
             if info['type'] == 'convolutional':
-                make_conv_layer(layer_idx, modules, info)
+                make_conv_layer(layer_idx, modules, info, in_channels[-1])
                 in_channels.append(int(info['filters']))
             # add 하는 부분
             elif info['type'] == 'shortcut':
@@ -105,7 +105,15 @@ class DarkNet53(nn.Module):
                 # 단 channel 수 는 달라도 된다. concat하게 되면 두 layer의 channel 수를 합친만큼 channel 수를 갖는다. 
                 elif len(layers) == 2:
                     in_channels.append(in_channels[layers[0]] + in_channels[layers[1]])
-                elif info['type'] == 'upsample':
-                    make_upsample_layer(layer_idx, modules, info)
-                    in_channels.append(in_channels[-1])
-                elif info['type'] == 'yolo':
+
+            elif info['type'] == 'upsample':
+                make_upsample_layer(layer_idx, modules, info)
+                in_channels.append(in_channels[-1])
+            elif info['type'] == 'yolo':
+                yololayer = Yololayer(info, self.in_width, self.in_height, self.training)
+                modules.add_module('layer_' + str(layer_idx) + '_yolo', yololayer)
+                in_channels.append(in_channels[-1])
+            
+            module_list.append(modules)
+        return module_list
+

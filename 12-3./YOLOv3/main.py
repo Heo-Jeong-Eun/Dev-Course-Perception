@@ -43,8 +43,11 @@ def train(cfg_param = None, using_gpus = None):
                               drop_last = True,
                               shuffle = True)
 
-    model = DarkNet53(args.cfg, cfg_param)
+    model = DarkNet53(args.cfg, cfg_param, training = True)
     
+    for name, param in model.parameters():
+        print(f'name : {name}, shape : {param}')
+
     # batch shape 출력 
     for i, batch in enumerate(train_loader):
         img, targets, anno_path = batch
