@@ -27,10 +27,10 @@ def make_conv_layer(layer_idx : int, modules : nn.Module, layer_info : dict, in_
                            nn.ReLU())
 
 def make_shortcut_layer(layer_idx : int, modules : nn.Module):
-    modules.add_module('layer_' + str(layer_idx) + '_shortcut', nn.Sequential())
+    modules.add_module('layer_' + str(layer_idx) + '_shortcut', nn.Identity())
 
 def make_route_layer(layer_idx : int, modules : nn.Module):
-    modules.add_module('layer_' + str(layer_idx) + '_route', nn.Sequential())
+    modules.add_module('layer_' + str(layer_idx) + '_route', nn.Identity())
 
 def make_upsample_layer(layer_idx : int, modules : nn.Module, layer_info : dict):
     stride = int(layer_info['stride'])
@@ -66,6 +66,15 @@ class Yololayer(nn.Module):
         # 2. 
         self.stride = torch.tensor([torch.div(self.in_width, self.lw, rounding_mode = 'floor'),
                                     torch.div(self.in_height, self.lh, rounding_mode = 'floor')]).to(x.device)
+
+        # if kitti data -> n_classes is 8, C = (8 + 5) * = 39
+        # [batch, box_attribute * anchor, lh, lw] -> ex) [1, 39, 19, 19]
+
+        # 4 dim [batch, box_attribute * anchor, lh, lw] -> 5 dim [batch, anchor, box_attribute, lh, lw]
+        # 5 dim [batch, anchor, box_attribute, lh, lw] -> [batch, anchor, lh, lw, box_attribute]
+        x = x.view(-1, self.anchor.shape[0], self.box_attr.shape, self.lh, self.lw).permute(0, 1, 3, 4, 2).contiguous()
+        
+        return x
 
 # 일반적으로 model을 만들 때, nn.Moudule을 상속받아 사용하게 된다. 
 class DarkNet53(nn.Module):
@@ -116,4 +125,44 @@ class DarkNet53(nn.Module):
             
             module_list.append(modules)
         return module_list
+    
+    # model을 처음에 선언했을 때, weight를 초기화 
+    def initialize_weights(self):
+        # track all layer
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_uniform_(m.weight)
 
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.BatchNorm2d): 
+                nn.init.constant_(m.weight, 1) # scale
+                nn.init.constant_(m.bias, 0) # shift 
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_uniform_(m.weight, 1) # scale
+                nn.init.constant_(m.bias, 0)
+
+
+    def forward(self, x):
+        yolo_result = []
+        layer_result = []
+
+        for idx, (name, layer) in enumerate(zip(self.module_cfg, self.module_list)):
+            if name['type'] == 'convolutional':
+                x = layer(x)
+                layer_result.append(x)
+            elif name['type'] == 'shortcut':
+                x = x + layer_result[int(name['from'])]
+                layer_result.append(x)
+            elif name['type'] == 'yolo':
+                yolo_x = layer(x)
+                layer_result.append(yolo_x)
+                yolo_result.append(yolo_x)
+            elif name['type'] == 'upsample':
+                x = layer(x)
+                layer_result.append(x)
+            elif name['type'] == 'route':
+                layers = [int(y) for y in name['layers'].split(',')]
+                x = torch.cat([layer_result[1] for l in layers], dim = 1)
+                layer_result.append(x)
+        return yolo_result

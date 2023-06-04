@@ -9,6 +9,7 @@ from utils.tools import *
 from dataloader.yolodata import *
 from dataloader.data_transform import *
 from model.yolov3 import *
+from train.trainer import * 
 
 def parse_args():
     parser = argparse.ArgumentParser(description = 'YOLOv3 PyTorch Arguments')
@@ -44,20 +45,34 @@ def train(cfg_param = None, using_gpus = None):
                               shuffle = True)
 
     model = DarkNet53(args.cfg, cfg_param, training = True)
+
+    model.train()
+    model.initialize_weights()
     
-    for name, param in model.parameters():
-        print(f'name : {name}, shape : {param}')
+    trainer = Trainer(model = model, train_loader = train_loader, eval_loader = None, hparam = cfg_param)
+    trainer.run()
+    
+    # for name, param in model.parameters():
+    #     print(f'name : {name}, shape : {param}')
 
-    # batch shape 출력 
-    for i, batch in enumerate(train_loader):
-        img, targets, anno_path = batch
-        print('iter {} img {}, targets {}, anno_path {}'.format(i, img.shape, targets.shape, anno_path))
+    # # batch shape 출력 
+    # for i, batch in enumerate(train_loader):
+    #     img, targets, anno_path = batch
+    #     print('iter {} img {}, targets {}, anno_path {}'.format(i, img.shape, targets.shape, anno_path))
         
-        # print(i, len(batch))
-        # print(batch)
+    #     # print(i, len(batch))
+    #     # print(batch)
 
-        # image 출력
-        drawBox(img[0].detach().cpu())
+    #     # image 출력
+    #     drawBox(img[0].detach().cpu())
+
+    # for i, batch in enumerate(train_loader):
+    #     image, targets, anno_path = batch
+
+    #     output = model(image)
+
+    #     print('output len : {}, 0th shape : {}'.format(len(output), output[0].shape))
+    #     sys.exit(1)
                               
 def eval(cfg_param = None, using_gpus = None):
     print('eval')
