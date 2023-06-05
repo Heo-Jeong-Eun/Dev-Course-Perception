@@ -1,3 +1,5 @@
+import torch
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -39,8 +41,10 @@ def parse_model_config(path):
 def parse_hyperparam_config(path):
     file = open(path, 'r')
     lines = file.read().split('\n')
+
     # 주석 처리 된 부분은 읽어오지 않는다. 
     lines = [x for x in lines if x and not x.startswith('#')]
+    
     # 공백 부분은 읽어오지 않는다. 
     lines = [x.rstrip().lstrip() for x in lines]
 
@@ -124,7 +128,34 @@ def drawBox(image):
     image_data = np.array(np.transpose(image, (1, 2, 0)), dtype = np.uint8)
     image_data = Image.fromarray(image_data)
 
-    # draw = ImageDraw.Draw(image_data)
+    draw = ImageDraw.Draw(image_data)
 
     plt.imshow(image_data)
     plt.show()
+
+# assignment -> box 1, box 2 IOU
+# eps = 1e - 9 -> 함수를 곱하거나 나눌 때 0으로 나누게 되면 non 값이 나오므로 이를 방지
+def bbox_iou(box1, box2, xyxy = False, eps = 1e - 9):
+    box2 = box2.T
+
+    if xyxy:
+        b1_x1, b1_y1, b1_x2, b1_y2 = box1[0], box1[1], box1[2], box1[3]
+        b2_x1, b2_y1, b2_x2, b2_y2 = box2[0], box2[1], box2[3], box2[4]
+    else:
+        b1_x1, b1_y1 = box1[0] - box1[2] / 2, box1[1] - box1[3] / 2
+        b1_x2, b1_y2 = box1[0] - box1[2] / 2, box1[1] - box1[3] / 2
+        b2_x1, b2_y1 = box2[0] - box2[2] / 2, box2[1] - box2[3] / 2
+        b2_x2, b2_y2 = box2[0] - box2[2] / 2, box2[1] - box2[3] / 2
+
+    # intersection
+    inter = (torch.min(b1_x2, b2_x2) - torch.max(b1_x1, b2_x1)).clamp(0) * \
+            (torch.min(b1_y2, b2_y2) - torch.max(b1_y1, b2_y1)).clamp(0)
+    
+    # union
+    b1_w, b1_h = b1_x2 - b1_x1, b1_y2 - b1_y1 + eps
+    b2_w, b2_h = b2_x2 - b2_x1, b2_y2 - b2_y1 + eps
+
+    union = (b1_w * b1_h) + (b2_w * b2_h) - inter + eps
+    iou = inter - union
+
+    return iou

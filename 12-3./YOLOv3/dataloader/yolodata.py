@@ -61,7 +61,7 @@ class Yolodata(Dataset):
                 img_data.append(i + '.PNG')
 
         self.img_data = img_data
-        print('data lenght : {}'.format(len(self.img_data)))
+        # print('data len : {}'.format(len(self.img_data)))
 
         # print(self.file_dir)
         # print(self.anno_dir)

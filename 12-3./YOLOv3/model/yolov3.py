@@ -42,15 +42,20 @@ class Yololayer(nn.Module):
         super(Yololayer, self).__init__()
         self.n_classes = int(layer_info['classes'])
         self.ignore_thresh = float(layer_info['ignore_thresh'])
-        self.box_attr = self.n_classes + 5 # box[4] + objectness[1] + class_prob[n_classes]
+
+        # box[4] + objectness[1] + class_prob[n_classes]
+        self.box_attr = self.n_classes + 5 
+
         # 9개의 anchor에서 어떤 mask index를 사용할 것인가 
         # 각각의 layer에서 다 사용하는 것이 아니고, mask index의 값만큼 사용한다. 
         mask_idxes = [int(x) for x in layer_info['mask'].split(',')]
+        
         anchor_all = [int(x) for x in layer_info['anchors'].split(',')]
         anchor_all = [(anchor_all[i], anchor_all[i + 1]) for i in range(0, len(anchor_all), 2)]
         self.anchor = torch.tensor([anchor_all[x] for x in mask_idxes])
         self.in_width = in_width
         self.in_height = in_height
+
         # 각각 yolo layer마다 stride, lw, lh 값이 달라진다. 
         self.stride = None
         self.lw = None
@@ -61,6 +66,7 @@ class Yololayer(nn.Module):
         # x = input = [N, C, H, W]
         self.lw, self.lh = x.shape[3], x.shape[2]
         self.anchor = self.anchor.to(x.device)
+
         # stride 값 추출 
         # 1. self.stride = torch.tensor(self.in_width // self.lw)
         # 2. 
@@ -87,6 +93,7 @@ class DarkNet53(nn.Module):
         self.n_classes = int(param['classes'])
         self.module_cfg = parse_model_config(cfg)
         self.module_list = self.set_layer(self.module_cfg)
+        self.yolo_layer = [layer[0] for layer in self.module_list if isinstance(layer[0], Yololayer)]
         self.training = training
 
     def set_layer(self, layer_info):
@@ -110,6 +117,7 @@ class DarkNet53(nn.Module):
 
                 if len(layers) == 1:
                     in_channels.append(in_channels[layers[0]])
+                    
                 # 두 개 layer의 feture을 concat하기 위해 기준은 height와, width가 같아야 한다.  
                 # 단 channel 수 는 달라도 된다. concat하게 되면 두 layer의 channel 수를 합친만큼 channel 수를 갖는다. 
                 elif len(layers) == 2:

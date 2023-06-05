@@ -1,6 +1,7 @@
 import torch
-import argparse
+
 import os, sys
+import argparse
 
 from ast import parse
 from torch.utils.data.dataloader import DataLoader
@@ -21,11 +22,29 @@ def parse_args():
     # 예외 처리 
     if len(sys.argv) == 1:
         parser.print_help()
-        # 코드 종료 
-        sys.exit(1) 
+        sys.exit(1) # 코드 종료 
     args = parser.parse_args()
     
     return args
+
+def collate_fn(batch):
+    batch = [data for data in batch if data is not None]
+
+    # skip invalid data
+    if len(batch) == 0:
+        return 
+    
+    images, targets, anno_path = list(zip(*batch))
+    images = torch.stack([image for image in images])
+
+    for i, boxes in enumerate(targets):
+        # insert index of batch 
+        boxes[:, 0] = i
+    targets = torch.cat(targets, 0)
+    
+    return images, targets, anno_path
+
+    # print([images[0]].shape, images.shape)
 
 def train(cfg_param = None, using_gpus = None):
     print('train')
@@ -42,16 +61,27 @@ def train(cfg_param = None, using_gpus = None):
                               num_workers = 0, 
                               pin_memory = True,
                               drop_last = True,
-                              shuffle = True)
-
+                              shuffle = True,
+                              collate_fn = collate_fn)
+    
     model = DarkNet53(args.cfg, cfg_param, training = True)
 
     model.train()
     model.initialize_weights()
+
+    # check 
+    print('gpu : ', torch.cuda.is_available())
     
-    trainer = Trainer(model = model, train_loader = train_loader, eval_loader = None, hparam = cfg_param)
+    # set device
+    if torch.cuda.is_available():
+        device = torch.device('cuda : 0')
+    else:
+        device = torch.device('cpu')
+    model = model.to(device)
+    
+    trainer = Trainer(model = model, train_loader = train_loader, eval_loader = None, hparam = cfg_param, device = device)
     trainer.run()
-    
+
     # for name, param in model.parameters():
     #     print(f'name : {name}, shape : {param}')
 
@@ -89,14 +119,11 @@ if __name__ == '__main__':
     print(cfg_param)
 
     if args.mode == 'train':
-        # training 
-        train(cfg_param = cfg_param)
+        train(cfg_param = cfg_param) # training 
     elif args.mode == 'eval':
-        # testing
-        eval(cfg_param = cfg_param)
+        eval(cfg_param = cfg_param) # testing
     elif args.mode == 'demo':
-        # demo
-        demo(cfg_param = cfg_param)
+        demo(cfg_param = cfg_param) # demo
     else:
         print('unknown')  
 

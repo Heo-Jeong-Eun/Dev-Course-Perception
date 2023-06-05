@@ -124,8 +124,7 @@ class ImgAug(object):
             boxes[box_idx, 3] = x2 - x1
             boxes[box_idx, 4] = y2 - y1
 
-        return image, boxes
-                         
+        return image, boxes           
 
 class DefaultAug(ImgAug):
     def __init__(self, ):
