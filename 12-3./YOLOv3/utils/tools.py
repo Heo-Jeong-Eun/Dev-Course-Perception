@@ -44,7 +44,7 @@ def parse_hyperparam_config(path):
 
     # 주석 처리 된 부분은 읽어오지 않는다. 
     lines = [x for x in lines if x and not x.startswith('#')]
-    
+
     # 공백 부분은 읽어오지 않는다. 
     lines = [x.rstrip().lstrip() for x in lines]
 
@@ -135,7 +135,7 @@ def drawBox(image):
 
 # assignment -> box 1, box 2 IOU
 # eps = 1e - 9 -> 함수를 곱하거나 나눌 때 0으로 나누게 되면 non 값이 나오므로 이를 방지
-def bbox_iou(box1, box2, xyxy = False, eps = 1e - 9):
+def bbox_iou(box1, box2, xyxy = False, eps = 1e-9):
     box2 = box2.T
 
     if xyxy:
@@ -159,3 +159,7 @@ def bbox_iou(box1, box2, xyxy = False, eps = 1e - 9):
     iou = inter - union
 
     return iou
+
+def get_lr(optimizer):
+    for param_group in optimizer.param_groups:
+        return param_group['lr']

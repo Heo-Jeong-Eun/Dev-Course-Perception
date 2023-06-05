@@ -1,16 +1,19 @@
 import torch
 
+from torch.utils.data.dataloader import DataLoader
+
 import os, sys
 import argparse
 
 from ast import parse
-from torch.utils.data.dataloader import DataLoader
 
 from utils.tools import *
 from dataloader.yolodata import *
 from dataloader.data_transform import *
 from model.yolov3 import *
 from train.trainer import * 
+
+from tensorboardX import SummaryWriter
 
 def parse_args():
     parser = argparse.ArgumentParser(description = 'YOLOv3 PyTorch Arguments')
@@ -78,8 +81,10 @@ def train(cfg_param = None, using_gpus = None):
     else:
         device = torch.device('cpu')
     model = model.to(device)
-    
-    trainer = Trainer(model = model, train_loader = train_loader, eval_loader = None, hparam = cfg_param, device = device)
+
+    torch_writer = SummaryWriter('./output')
+
+    trainer = Trainer(model = model, train_loader = train_loader, eval_loader = None, hparam = cfg_param, device = device, torch_writer = torch_writer)
     trainer.run()
 
     # for name, param in model.parameters():
@@ -104,27 +109,27 @@ def train(cfg_param = None, using_gpus = None):
     #     print('output len : {}, 0th shape : {}'.format(len(output), output[0].shape))
     #     sys.exit(1)
                               
-def eval(cfg_param = None, using_gpus = None):
-    print('eval')
+# def eval(cfg_param = None, using_gpus = None):
+#     print('eval')
 
-def demo(cfg_param = None, using_gpus = None):
-    print('demo')
+# def demo(cfg_param = None, using_gpus = None):
+#     print('demo')
 
-if __name__ == '__main__':
-    args = parse_args()
+# if __name__ == '__main__':
+#     args = parse_args()
 
-    # cfgs path
-    net_data = parse_hyperparam_config(args.cfg)
-    cfg_param = get_hyperparam(net_data)
-    print(cfg_param)
+#     # cfgs path
+#     net_data = parse_hyperparam_config(args.cfg)
+#     cfg_param = get_hyperparam(net_data)
+#     print(cfg_param)
 
-    if args.mode == 'train':
-        train(cfg_param = cfg_param) # training 
-    elif args.mode == 'eval':
-        eval(cfg_param = cfg_param) # testing
-    elif args.mode == 'demo':
-        demo(cfg_param = cfg_param) # demo
-    else:
-        print('unknown')  
+#     if args.mode == 'train':
+#         train(cfg_param = cfg_param) # training 
+#     elif args.mode == 'eval':
+#         eval(cfg_param = cfg_param) # testing
+#     elif args.mode == 'demo':
+#         demo(cfg_param = cfg_param) # demo
+#     else:
+#         print('unknown')  
 
-    print('finish')
+#     print('finish')
