@@ -9,12 +9,12 @@ print(cv2.__version__)
 
 window_name = "BDD100K Validation Image"
 
-val_json_filepath = "labels/det_20/det_val.json"
-image_filepath_root = "bdd100k/images/100k/val"
+val_json_filepath = "/Users/1001l1000/Documents/Dev-Course/13-2./배포 파일/labels/det_20/det_val.json"
+image_filepath_root = "/Users/1001l1000/Documents/Dev-Course/13-2./배포 파일/images/100k/val"
 
 visualization = False
 
-YOLO_OUTPUT_DIRECTORY_PREFIX = "yolo_labels/val/"
+YOLO_OUTPUT_DIRECTORY_PREFIX = "/Users/1001l1000/Documents/Dev-Course/13-2./배포 파일/images/100k/val/"
 
 CLASS_ID_MAPPING_TABLE = {
     "pedestrian": 0,
@@ -42,7 +42,9 @@ for val_label in val_labels:
     text_filename = image_filename.split(".")[0] + ".txt"
 
     image = get_image_file(image_filename, visualization=visualization)
-    img_height, img_width, channel = np.shape(image)
+    img_height = np.shape(image)
+    img_width = np.shape(image)
+    channel = np.shape(image)
     labels = val_label["labels"]
 
     with open(YOLO_OUTPUT_DIRECTORY_PREFIX + text_filename, "w+") as file:
