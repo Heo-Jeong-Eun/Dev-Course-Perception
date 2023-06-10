@@ -81,7 +81,6 @@ for i in range(len(image_path_list)):
         height += SQUARE_SIZE
     object_points.append(object_point)
 
-
 object_points = np.asarray(object_points, dtype=np.float32)
 
 tmp_image = cv2.imread("images/left01.jpg", cv2.IMREAD_ANYCOLOR)
@@ -116,7 +115,6 @@ for rvec, tvec, image_path in zip(rvecs, tvecs, image_path_list):
 
     # cv2.imshow(window_name, image)
     # cv2.waitKey(0)
-
 
 # B. projection frame points
 ## object points -> [X, Y, Z]
@@ -212,12 +210,10 @@ for rvec, tvec, image_path, xy, yz, zx in zip(rvecs, tvecs, image_path_list, xy_
     image = projection_points(image, yz, rvec, tvec, camera_matrix, dist_coeffs, green_color)
     image = projection_points(image, zx, rvec, tvec, camera_matrix, dist_coeffs, red_color)
 
-
     image = cv2.drawFrameAxes(image, camera_matrix, dist_coeffs, rvec, tvec, 0.03, 3)
     
     cv2.imshow(window_name, image)
     cv2.waitKey(0)
-
 
 """
 0, 0, 0 -> index 0

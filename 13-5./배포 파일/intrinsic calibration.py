@@ -6,9 +6,9 @@ import time
 DISPLAY_IMAGE = False
 
 # Get Image Path List
-image_path_list = glob.glob("images/*.jpg")
+image_path_list = glob.glob("/Users/1001l1000/Documents/Dev-Course/13-5./배포 파일/images/*.jpg")
 
-# Chessboard Config
+# Chessboard Configㅔㅛ
 BOARD_WIDTH = 9
 BOARD_HEIGHT = 6
 SQUARE_SIZE = 0.025
@@ -80,7 +80,6 @@ for i in range(len(image_path_list)):
             width += SQUARE_SIZE
         height += SQUARE_SIZE
     object_points.append(object_point)
-
 
 object_points = np.asarray(object_points, dtype=np.float32)
 
