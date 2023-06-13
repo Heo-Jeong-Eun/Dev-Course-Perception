@@ -39,7 +39,6 @@ for class_name, bbox in zip(class_names, boxes_2d):
     if xmin < 0 or ymin < 0 or xmax < 0 or ymax < 0:
         continue
 
-
     width = xmax - xmin
     height = ymax - ymin
 
