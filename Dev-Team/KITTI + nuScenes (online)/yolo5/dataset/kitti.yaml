@@ -1,0 +1,6 @@
+train: /Users/1001l1000/Desktop/yolo5/dataset/train.txt
+val: /Users/1001l1000/Desktop/yolo5/dataset/val.txt
+
+# Classes
+nc: 8  # number of classes
+names: ['Car', 'Van', 'Truck', 'Pedestrian', 'Person_sitting', 'Cyclist', 'Tram', 'DontCare']  # class names
