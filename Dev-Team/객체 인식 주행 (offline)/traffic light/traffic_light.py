@@ -1,6 +1,3 @@
-# !! bbox roi -> circle 검출 
-# input = mFrame
-
 import cv2
 import numpy as np
 
@@ -43,19 +40,6 @@ for i in circles[0, :]:
 
     green_mask = cv2.inRange(hsv, green_lower, green_upper)
     green_result = cv2.bitwise_and(image, image, mask = green_mask)
-
-    # pixel value : x, y
-    # pixel_value = image[i[1], i[0]]
-
-    # draw rectangle
-    # ! change magic number
-    # rect_w = 20 
-    # rect_h = 20
-    # x1 = i[0] - rect_w // 2
-    # y1 = i[1] - rect_h // 2
-    # x2 = i[0] + rect_w // 2
-    # y2 = i[1] + rect_h // 2
-    # rect = cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 255), 2)
 
 cv2.imshow('h', h)
 cv2.imshow('s', s)
