@@ -248,7 +248,7 @@
 > ./Examples/Monocular/mono_kitti Vocabulary/ORBvoc.txt ./Examples/Monocular/KITTI00-02.yaml ./Dataset/KITTI/00/00
 > ```
 <video controls width="500">
-    <source src = "video/SLAM RUN.mov" type="video/mov">
+    <source src = "video/SLAM RUN.mov" type="video/mp4">
 </video>
 
 ### evo Package, Trajectory
