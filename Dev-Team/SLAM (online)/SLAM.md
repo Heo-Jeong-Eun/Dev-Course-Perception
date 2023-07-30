@@ -18,7 +18,7 @@
 > $ ./scripts/install_prerequisites.sh recommended
 > ```
 > 
-> <img src = "/Users/1001l1000/Documents/Dev-Course/Dev-Team/SLAM (online)/image/Pangolin.png">
+> <img src = "image/Pangolin.png">
 > 
 > file structure
 > 
@@ -203,7 +203,7 @@
 > $ git clone https://gitlab.com/libeigen/eigen.git
 > ```
 > 
-> <img src = "/Users/1001l1000/Documents/Dev-Course/Dev-Team/SLAM (online)/image/Eigen.png">
+> <img src = "image/Eigen.png">
 > 
 > file structure
 > 
@@ -234,7 +234,7 @@
 > $ ./build.sh
 > ```
 > 
-> <img src = "/Users/1001l1000/Documents/Dev-Course/Dev-Team/SLAM (online)/image/build success.png">
+> <img src = "image/build success.png">
 > 
 > build success !
 >
@@ -248,7 +248,7 @@
 > ./Examples/Monocular/mono_kitti Vocabulary/ORBvoc.txt ./Examples/Monocular/KITTI00-02.yaml ./Dataset/KITTI/00/00
 > ```
 > <video controls width="500">
-> <source src = "/Users/1001l1000/Documents/Dev-Course/Dev-Team/SLAM (online)/SLAM RUN.mov">
+> <source src = "video/SLAM RUN.mov">
 > 
 > [GitHub - kafendt/ORB_SLAM2_Accessible: Adds debug capabilities to ORB_SLAM2, e.g. parameters changable during runtime, logging which can be switched on/off as wanted and pausing / stepping through the algorithm frame by frame](https://github.com/kafendt/ORB_SLAM2_Accessible#kitti-dataset)
 >
