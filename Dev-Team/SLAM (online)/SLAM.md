@@ -248,11 +248,8 @@
 > ./Examples/Monocular/mono_kitti Vocabulary/ORBvoc.txt ./Examples/Monocular/KITTI00-02.yaml ./Dataset/KITTI/00/00
 > ```
 > <video controls width="500">
-> <source src = "video/SLAM RUN.mov">
-> 
-> [GitHub - kafendt/ORB_SLAM2_Accessible: Adds debug capabilities to ORB_SLAM2, e.g. parameters changable during runtime, logging which can be switched on/off as wanted and pausing / stepping through the algorithm frame by frame](https://github.com/kafendt/ORB_SLAM2_Accessible#kitti-dataset)
->
-
+>   <source src = "video/SLAM RUN.mov">
+> </video>
 
 ### evo Package, Trajectory
 
